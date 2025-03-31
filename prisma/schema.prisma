@@ -1,0 +1,147 @@
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model - base for both students and lecturers
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  name           String
+  hashedPassword String
+  role           Role      @default(STUDENT)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  // Relations based on role
+  student        Student?
+  lecturer       Lecturer?
+}
+
+// Student-specific information
+model Student {
+  id         String   @id @default(cuid())
+  matricNumber  String   @unique
+  level Int
+  major      String
+  
+  // Relation to base user
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String   @unique
+  
+  // Relations to other models
+  enrollments Enrollment[]
+  submissions Submission[]
+}
+
+// Lecturer-specific information
+model Lecturer {
+  id             String   @id @default(cuid())
+  title          String?
+  department     String
+  specialization String?
+  bio            String?  @db.Text
+  
+  // Relation to base user
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String   @unique
+  
+  // Relations to other models
+  courses        Course[]
+}
+
+// Course model
+model Course {
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  lecturer      Lecturer      @relation(fields: [lecturerId], references: [id])
+  lecturerId    String
+  assignments   Assignment[]
+  enrollments   Enrollment[]
+  
+  // Optional fields
+  imageUrl      String?
+  isPublished   Boolean       @default(false)
+}
+
+// Assignment model
+model Assignment {
+  id          String   @id @default(cuid())
+  title       String
+  description String?  @db.Text
+  marks       Int
+  deadline    DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  course       Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId     String
+  submissions  Submission[]
+}
+
+// Enrollment model (connects students to courses)
+model Enrollment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId String
+  course    Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId  String
+  
+  // Status
+  status    EnrollmentStatus @default(ENROLLED)
+  
+  // Ensure a student can only enroll once in a course
+  @@unique([studentId, courseId])
+}
+
+// Submission model (for assignment submissions)
+model Submission {
+  id          String   @id @default(cuid())
+  content     String?  @db.Text
+  fileUrl     String?
+  submittedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  student     Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId   String
+  assignment  Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId String
+  
+  // Grading information
+  grade       Float?
+  feedback    String?    @db.Text
+  gradedAt    DateTime?
+  
+  // Ensure a student can only submit once per assignment (can be removed if multiple submissions are allowed)
+  @@unique([studentId, assignmentId])
+}
+
+// Enums
+enum Role {
+  STUDENT
+  LECTURER
+  ADMIN
+}
+
+enum EnrollmentStatus {
+  ENROLLED
+  COMPLETED
+  DROPPED
+}
+
