@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   ArrowLeft,
   BookOpen,
@@ -9,6 +8,7 @@ import {
   Plus,
   Users,
 } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,10 +26,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Assignment, Submission } from "@prisma/client/edge";
 
-export default function LecturerCoursePage({ courseId }: { courseId: string }) {
-  const course = courses.find((c) => c.id === courseId) || courses[0];
-
+export default function LecturerCoursePage({ course }: { course: any }) {
   return (
     <div className="space-y-6 h-full flex-1">
       <div className="flex items-center gap-2">
@@ -69,7 +68,7 @@ export default function LecturerCoursePage({ courseId }: { courseId: string }) {
                     <span className="text-sm font-medium">Assignments</span>
                   </div>
                   <p className="mt-1 text-2xl font-bold">
-                    {course.assignments}
+                    {course.assignments.length}
                   </p>
                 </div>
                 <div className="rounded-lg border p-3">
@@ -77,7 +76,9 @@ export default function LecturerCoursePage({ courseId }: { courseId: string }) {
                     <Users className="h-4 w-4 text-blue-600" />
                     <span className="text-sm font-medium">Students</span>
                   </div>
-                  <p className="mt-1 text-2xl font-bold">{course.students}</p>
+                  <p className="mt-1 text-2xl font-bold">
+                    {course?.enrollments?.length}
+                  </p>
                 </div>
                 <div className="rounded-lg border p-3">
                   <div className="flex items-center gap-2">
@@ -85,7 +86,9 @@ export default function LecturerCoursePage({ courseId }: { courseId: string }) {
                     <span className="text-sm font-medium">Submissions</span>
                   </div>
                   <p className="mt-1 text-2xl font-bold">
-                    {course.submissions}
+                    {course.assignments.length > 0
+                      ? course?.submissions?.length
+                      : 0}
                   </p>
                 </div>
               </div>
@@ -151,76 +154,89 @@ export default function LecturerCoursePage({ courseId }: { courseId: string }) {
           </div>
 
           <div className="space-y-4">
-            {course.assignmentList && course.assignmentList.length > 0 ? (
-              course.assignmentList.map((assignment) => (
-                <Card key={assignment.id}>
-                  <CardHeader className="pb-2">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle>{assignment.title}</CardTitle>
-                        <CardDescription>
-                          Due: {assignment.deadline}
-                        </CardDescription>
+            {course.assignments && course.assignments.length > 0 ? (
+              course.assignments.map(
+                (
+                  assignment: Assignment & {
+                    submissions: Submission[];
+                  }
+                ) => (
+                  <Card key={assignment.id}>
+                    <CardHeader className="pb-2">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <CardTitle>{assignment.title}</CardTitle>
+                          <CardDescription>
+                            Due:{" "}
+                            {assignment.deadline?.toDateString() ||
+                              "No deadline set"}
+                          </CardDescription>
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Actions</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                              <Link
+                                href={`/courses/${course.id}/assignments/${assignment.id}/edit`}
+                              >
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit Assignment
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link
+                                href={`/courses/${course.id}/assignments/${assignment.id}/submissions`}
+                              >
+                                <FileText className="mr-2 h-4 w-4" />
+                                View Submissions
+                              </Link>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Actions</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem asChild>
-                            <Link
-                              href={`/courses/${course.id}/assignments/${assignment.id}/edit`}
-                            >
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit Assignment
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link
-                              href={`/courses/${course.id}/assignments/${assignment.id}/submissions`}
-                            >
-                              <FileText className="mr-2 h-4 w-4" />
-                              View Submissions
-                            </Link>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="line-clamp-2 text-sm text-muted-foreground">
-                      {assignment.description}
-                    </p>
-                    <div className="mt-4 flex items-center gap-4">
-                      <div className="flex items-center gap-1 text-sm">
-                        <FileText className="h-4 w-4 text-muted-foreground" />
-                        <span>{assignment.submissions} submissions</span>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="line-clamp-2 text-sm text-muted-foreground">
+                        {assignment.description}
+                      </p>
+                      <div className="mt-4 flex items-center gap-4">
+                        <div className="flex items-center gap-1 text-sm">
+                          <FileText className="h-4 w-4 text-muted-foreground" />
+                          <span>
+                            {assignment?.submissions?.length} submissions
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 text-sm">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          <span>
+                            {assignment.deadline?.toDateString() ||
+                              "No deadline set"}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1 text-sm">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span>{assignment.deadline}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                  <CardFooter className="border-t bg-muted/50 p-3">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full"
-                      asChild
-                    >
-                      <Link
-                        href={`/courses/${course.id}/assignments/${assignment.id}`}
+                    </CardContent>
+                    <CardFooter className="border-t bg-muted/50 p-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full"
+                        asChild
                       >
-                        View Assignment
-                      </Link>
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))
+                        <Link
+                          href={`/courses/${course.id}/assignments/${assignment.id}`}
+                        >
+                          View Assignment
+                        </Link>
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                )
+              )
             ) : (
               <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
                 <BookOpen className="h-10 w-10 text-muted-foreground" />
@@ -298,94 +314,94 @@ export default function LecturerCoursePage({ courseId }: { courseId: string }) {
   );
 }
 
-const courses = [
-  {
-    id: "1",
-    name: "Data Structures and Algorithms",
-    code: "CS301",
-    description:
-      "Advanced concepts in data structures and algorithm design. Learn about arrays, linked lists, trees, graphs, and various algorithms for searching and sorting.",
-    assignments: 5,
-    students: 42,
-    submissions: 156,
-    assignmentList: [
-      {
-        id: "a1",
-        title: "Assignment 1: Linked Lists Implementation",
-        description:
-          "Implement a doubly linked list with insertion, deletion, and traversal operations.",
-        deadline: "March 15, 2025",
-        submissions: 38,
-      },
-      {
-        id: "a2",
-        title: "Assignment 2: Sorting Algorithms",
-        description:
-          "Implement and analyze the performance of quicksort, mergesort, and heapsort algorithms.",
-        deadline: "April 2, 2025",
-        submissions: 35,
-      },
-      {
-        id: "a3",
-        title: "Assignment 3: Graph Algorithms",
-        description:
-          "Implement breadth-first search and depth-first search algorithms for graph traversal.",
-        deadline: "April 20, 2025",
-        submissions: 40,
-      },
-      {
-        id: "a4",
-        title: "Assignment 4: Dynamic Programming",
-        description:
-          "Solve the knapsack problem and longest common subsequence problem using dynamic programming.",
-        deadline: "May 5, 2025",
-        submissions: 37,
-      },
-      {
-        id: "a5",
-        title: "Assignment 5: Advanced Data Structures",
-        description:
-          "Implement an AVL tree and a hash table with collision resolution.",
-        deadline: "May 25, 2025",
-        submissions: 6,
-      },
-    ],
-    studentList: [
-      {
-        id: "s1",
-        name: "Alex Johnson",
-        matricNumber: "23CG034136",
-        level: 300,
-        submissions: 5,
-      },
-      {
-        id: "s2",
-        name: "Maria Garcia",
-        matricNumber: "23CG034136",
-        level: 300,
-        submissions: 4,
-      },
-      {
-        id: "s3",
-        name: "James Wilson",
-        matricNumber: "23CG034136",
-        level: 300,
-        submissions: 5,
-      },
-      {
-        id: "s4",
-        name: "Sarah Ahmed",
-        matricNumber: "23CG034136",
-        level: 300,
-        submissions: 3,
-      },
-      {
-        id: "s5",
-        name: "David Lee",
-        matricNumber: "23CG034136",
-        level: 300,
-        submissions: 5,
-      },
-    ],
-  },
-];
+// const courses = [
+//   {
+//     id: "1",
+//     name: "Data Structures and Algorithms",
+//     code: "CS301",
+//     description:
+//       "Advanced concepts in data structures and algorithm design. Learn about arrays, linked lists, trees, graphs, and various algorithms for searching and sorting.",
+//     assignments: 5,
+//     students: 42,
+//     submissions: 156,
+//     assignmentList: [
+//       {
+//         id: "a1",
+//         title: "Assignment 1: Linked Lists Implementation",
+//         description:
+//           "Implement a doubly linked list with insertion, deletion, and traversal operations.",
+//         deadline: "March 15, 2025",
+//         submissions: 38,
+//       },
+//       {
+//         id: "a2",
+//         title: "Assignment 2: Sorting Algorithms",
+//         description:
+//           "Implement and analyze the performance of quicksort, mergesort, and heapsort algorithms.",
+//         deadline: "April 2, 2025",
+//         submissions: 35,
+//       },
+//       {
+//         id: "a3",
+//         title: "Assignment 3: Graph Algorithms",
+//         description:
+//           "Implement breadth-first search and depth-first search algorithms for graph traversal.",
+//         deadline: "April 20, 2025",
+//         submissions: 40,
+//       },
+//       {
+//         id: "a4",
+//         title: "Assignment 4: Dynamic Programming",
+//         description:
+//           "Solve the knapsack problem and longest common subsequence problem using dynamic programming.",
+//         deadline: "May 5, 2025",
+//         submissions: 37,
+//       },
+//       {
+//         id: "a5",
+//         title: "Assignment 5: Advanced Data Structures",
+//         description:
+//           "Implement an AVL tree and a hash table with collision resolution.",
+//         deadline: "May 25, 2025",
+//         submissions: 6,
+//       },
+//     ],
+//     studentList: [
+//       {
+//         id: "s1",
+//         name: "Alex Johnson",
+//         matricNumber: "23CG034136",
+//         level: 300,
+//         submissions: 5,
+//       },
+//       {
+//         id: "s2",
+//         name: "Maria Garcia",
+//         matricNumber: "23CG034136",
+//         level: 300,
+//         submissions: 4,
+//       },
+//       {
+//         id: "s3",
+//         name: "James Wilson",
+//         matricNumber: "23CG034136",
+//         level: 300,
+//         submissions: 5,
+//       },
+//       {
+//         id: "s4",
+//         name: "Sarah Ahmed",
+//         matricNumber: "23CG034136",
+//         level: 300,
+//         submissions: 3,
+//       },
+//       {
+//         id: "s5",
+//         name: "David Lee",
+//         matricNumber: "23CG034136",
+//         level: 300,
+//         submissions: 5,
+//       },
+//     ],
+//   },
+// ];

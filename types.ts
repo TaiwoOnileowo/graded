@@ -10,3 +10,13 @@ export interface CourseData {
   isPublished: boolean;
   lecturerId: string;
 }
+
+export interface ICourse {
+  id: string;
+  name: string;
+  code: string;
+  description: string | null;
+  assignments: number;
+  students: number;
+  isPublished: boolean;
+}

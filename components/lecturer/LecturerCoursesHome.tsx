@@ -26,8 +26,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ICourse } from "@/types";
 
-export default function CoursesPage() {
+export default function CoursesPage({ courses }: { courses: ICourse[] }) {
+  const activeCourses = courses.filter((course) => course.isPublished);
+  const draftCourses = courses.filter((course) => !course.isPublished);
   return (
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
@@ -80,7 +83,7 @@ export default function CoursesPage() {
   );
 }
 
-function CourseCard({ course }: { course: any }) {
+function CourseCard({ course }: { course: ICourse }) {
   return (
     <Card className="overflow-hidden">
       <CardHeader className="pb-2">
@@ -112,9 +115,11 @@ function CourseCard({ course }: { course: any }) {
         </div>
       </CardHeader>
       <CardContent>
-        <p className="line-clamp-2 text-sm text-muted-foreground">
-          {course.description}
-        </p>
+        {course.description && (
+          <p className="line-clamp-2 text-sm text-muted-foreground">
+            {course.description}
+          </p>
+        )}
         <div className="mt-4 flex items-center gap-4">
           <div className="flex items-center gap-1 text-sm">
             <BookOpen className="h-4 w-4 text-muted-foreground" />
@@ -134,45 +139,3 @@ function CourseCard({ course }: { course: any }) {
     </Card>
   );
 }
-
-const activeCourses = [
-  {
-    id: "1",
-    name: "Data Structures and Algorithms",
-    code: "CS301",
-    description:
-      "Advanced concepts in data structures and algorithm design. Learn about arrays, linked lists, trees, graphs, and various algorithms for searching and sorting.",
-    assignments: 5,
-    students: 42,
-  },+
-  {
-    id: "2",
-    name: "Database Systems",
-    code: "CS405",
-    description:
-      "Fundamentals of database design and SQL programming. Learn about relational databases, normalization, and database management systems.",
-    assignments: 3,
-    students: 38,
-  },
-  {
-    id: "3",
-    name: "Web Development",
-    code: "CS210",
-    description:
-      "Introduction to web development technologies including HTML, CSS, JavaScript, and modern frameworks.",
-    assignments: 4,
-    students: 25,
-  },
-];
-
-const draftCourses = [
-  {
-    id: "4",
-    name: "Programming Fundamentals",
-    code: "CS101",
-    description:
-      "Introduction to programming concepts using Python. Covers variables, control structures, functions, and basic data structures.",
-    assignments: 0,
-    students: 0,
-  },
-];

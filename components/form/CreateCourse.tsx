@@ -60,7 +60,7 @@ const CreateCourse = ({ id }: { id: string }) => {
           <Label htmlFor="code">Course Code</Label>
           <Input
             id="code"
-            placeholder="e.g. CS101"
+            placeholder="e.g. CSC101"
             value={code}
             onChange={(e) => setCode(e.target.value)}
           />
@@ -71,7 +71,7 @@ const CreateCourse = ({ id }: { id: string }) => {
           <Textarea
             id="description"
             placeholder="Provide a detailed description of the course content and objectives"
-            className="min-h-[120px]"
+            className="min-h-[120px] min-w-[520px]"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
