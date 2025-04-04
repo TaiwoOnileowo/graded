@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ToastContainer } from "react-toastify";
 import "./globals.css";
+import QueryProvider from "./QueryProvider";
 
 export const metadata: Metadata = {
   title: "GRADED",
@@ -15,19 +16,21 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={` antialiased`}>
-        <ToastContainer
-          position="top-right"
-          autoClose={2000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="colored"
-        />
-        {children}
+        <QueryProvider>
+          <ToastContainer
+            position="top-right"
+            autoClose={2000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="colored"
+          />
+          {children}
+        </QueryProvider>
       </body>
     </html>
   );

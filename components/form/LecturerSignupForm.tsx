@@ -64,7 +64,6 @@ const LecturerSignupForm = () => {
       email: "",
       title: "",
       department: "",
-      specialization: "",
       bio: "",
       password: "",
       confirmPassword: "",
@@ -82,7 +81,6 @@ const LecturerSignupForm = () => {
         name: values.name,
         title: values.title,
         department: values.department,
-        specialization: values.specialization,
         bio: values.bio || "",
         role: "LECTURER",
       };
@@ -188,24 +186,6 @@ const LecturerSignupForm = () => {
               )}
             />
           </div>
-
-          <FormField
-            control={form.control}
-            name="specialization"
-            render={({ field }) => (
-              <FormItem className="space-y-2">
-                <FormLabel htmlFor="specialization">Specialization</FormLabel>
-                <FormControl>
-                  <Input
-                    id="specialization"
-                    placeholder="Artificial Intelligence"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
           <FormField
             control={form.control}

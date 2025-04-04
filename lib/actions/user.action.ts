@@ -12,7 +12,6 @@ export type LecturerSignupCredentials = {
   name: string;
   title: string;
   department: string;
-  specialization: string;
   bio: string;
   role: "LECTURER";
 };
@@ -40,7 +39,6 @@ export const createLecturer = async (
           create: {
             title: credentials.title,
             department: credentials.department,
-            specialization: credentials.specialization,
             bio: credentials.bio,
           },
         },
@@ -123,7 +121,12 @@ export const getUserByEmail = async (email: string) => {
       where: {
         email,
       },
+      include: {
+        student: true,
+        lecturer: true,
+      },
     });
+
     if (user) {
       return user;
     }

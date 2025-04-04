@@ -1,10 +1,30 @@
-import Header from "@/components/Header";
+import { auth } from "@/auth";
+import LecturerDashboardLayout from "@/components/layout/LecturerDashboardLayout";
+import StudentDashboardLayout from "@/components/layout/StudentDashboardLayout";
 
-const Layout = ({ children }: { children: React.ReactNode }) => {
+const Layout = async ({ children }: { children: React.ReactNode }) => {
+  const session = await auth();
+
+  const role = session?.user?.role;
+  const isStudent = role === "STUDENT";
+  const userId = session?.user.id;
+  let lecturerDetails;
+  if (!isStudent) {
+    lecturerDetails = {
+      name: session?.user.name || "Unknown",
+      title: session?.user.lecturer?.title || "",
+      department: session?.user.lecturer?.department || "",
+    };
+  }
   return (
     <>
-      <Header />
-      {children}
+      {isStudent ? (
+        <StudentDashboardLayout>{children}</StudentDashboardLayout>
+      ) : (
+        <LecturerDashboardLayout lecturerDetails={lecturerDetails}>
+          {children}
+        </LecturerDashboardLayout>
+      )}
     </>
   );
 };

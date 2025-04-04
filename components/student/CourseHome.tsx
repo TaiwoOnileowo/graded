@@ -1,11 +1,4 @@
-import {
-  ArrowLeft,
-  BookOpen,
-  Calendar,
-  GraduationCap,
-  Search,
-  Trophy,
-} from "lucide-react";
+import { ArrowLeft, BookOpen, Calendar, Trophy } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -19,9 +12,8 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
-export default function CoursePage({ params }: { params: { id: string } }) {
-  // In a real app, you would fetch the course data based on the ID
-  const course = courses.find((c) => c.id === params.id) || courses[0];
+export default function StudentCoursePage({ courseId }: { courseId: string }) {
+  const course = courses.find((c) => c.id === courseId) || courses[0];
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -72,7 +64,6 @@ export default function CoursePage({ params }: { params: { id: string } }) {
                 </span>
               </div>
               <Progress
-              
                 value={
                   (course.completedAssignments / course.assignments.length) *
                   100

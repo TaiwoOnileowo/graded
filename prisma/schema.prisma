@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
   engineType = "library"
 }
 
@@ -10,30 +10,29 @@ datasource db {
 
 // User model - base for both students and lecturers
 model User {
-  id             String    @id @default(cuid())
-  email          String    @unique
+  id             String   @id @default(cuid())
+  email          String   @unique
   name           String
   hashedPassword String
-  role           Role      @default(STUDENT)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  
+  role           Role     @default(STUDENT)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
   // Relations based on role
-  student        Student?
-  lecturer       Lecturer?
+  student  Student?
+  lecturer Lecturer?
 }
 
 // Student-specific information
 model Student {
-  id         String   @id @default(cuid())
-  matricNumber  String   @unique
-  level Int
-  major      String
-  
+  id           String   @id @default(cuid())
+  matricNumber String   @unique
+  level        Int
+  major        String
   // Relation to base user
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     String   @unique
-  
+
   // Relations to other models
   enrollments Enrollment[]
   submissions Submission[]
@@ -44,50 +43,70 @@ model Lecturer {
   id             String   @id @default(cuid())
   title          String?
   department     String
-  specialization String?
   bio            String?  @db.Text
-  
+
   // Relation to base user
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId         String   @unique
-  
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String   @unique
+
   // Relations to other models
-  courses        Course[]
+  courses  Course[]
 }
 
 // Course model
 model Course {
   id          String   @id @default(cuid())
   name        String
+  code        String
   description String?  @db.Text
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
+  // Course status
+  isPublished Boolean  @default(false)
+
   // Relations
-  lecturer      Lecturer      @relation(fields: [lecturerId], references: [id])
-  lecturerId    String
-  assignments   Assignment[]
-  enrollments   Enrollment[]
-  
-  // Optional fields
-  imageUrl      String?
-  isPublished   Boolean       @default(false)
+  lecturer    Lecturer    @relation(fields: [lecturerId], references: [id])
+  lecturerId  String
+  assignments Assignment[]
+  enrollments Enrollment[]
 }
 
 // Assignment model
 model Assignment {
+  id              String    @id @default(cuid())
+  title           String
+  description     String?   @db.Text
+  questionText    String?   @db.Text  // The programming question itself
+  codeTemplate    String?   @db.Text  // Starting code template for students
+  expectedSolution String?  @db.Text  // Expected solution for automated grading
+  hint            String?   @db.Text  // Optional hint for students
+  marks           Int
+  deadline        DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  isPublished     Boolean   @default(false)
+
+  // Relations
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId    String
+  submissions Submission[]
+  rubrics     RubricItem[]
+}
+
+// Rubric model for grading criteria
+model RubricItem {
   id          String   @id @default(cuid())
-  title       String
-  description String?  @db.Text
-  marks       Int
-  deadline    DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  title       String   // Name of the criterion
+  description String?  @db.Text  // Description of what's being evaluated
+  maxPoints   Int      // Maximum points for this criterion
   
   // Relations
-  course       Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  courseId     String
-  submissions  Submission[]
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId String
+  
+  // Rubric evaluations
+  evaluations RubricEvaluation[]
 }
 
 // Enrollment model (connects students to courses)
@@ -95,41 +114,65 @@ model Enrollment {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   // Relations
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
   studentId String
   course    Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId  String
-  
+
   // Status
-  status    EnrollmentStatus @default(ENROLLED)
-  
+  status EnrollmentStatus @default(ENROLLED)
+
   // Ensure a student can only enroll once in a course
   @@unique([studentId, courseId])
 }
 
 // Submission model (for assignment submissions)
 model Submission {
-  id          String   @id @default(cuid())
-  content     String?  @db.Text
-  fileUrl     String?
-  submittedAt DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id          String    @id @default(cuid())
+  content     String?   @db.Text  // Submitted code or text
+  fileUrl     String?   // For file uploads
+  submittedAt DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Automated testing results
+  testsPassed Int?      // Number of tests passed
+  testsTotal  Int?      // Total number of tests
   
   // Relations
-  student     Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  studentId   String
-  assignment  Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student      Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId    String
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   assignmentId String
   
   // Grading information
-  grade       Float?
-  feedback    String?    @db.Text
-  gradedAt    DateTime?
+  autoGrade    Float?     // Automatically calculated grade
+  finalGrade   Float?     // Final grade (after manual adjustments)
+  feedback     String?    @db.Text
+  gradedAt     DateTime?
+  gradedBy     String?    // ID of the lecturer who graded
   
+  // Rubric evaluations for this submission
+  rubricEvaluations RubricEvaluation[]
+
   // Ensure a student can only submit once per assignment (can be removed if multiple submissions are allowed)
   @@unique([studentId, assignmentId])
+}
+
+// Rubric evaluation for a specific submission
+model RubricEvaluation {
+  id          String @id @default(cuid())
+  points      Float  // Points awarded for this criterion
+  comment     String? @db.Text
+  
+  // Relations
+  rubricItem   RubricItem @relation(fields: [rubricItemId], references: [id], onDelete: Cascade)
+  rubricItemId String
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  submissionId String
+  
+  @@unique([rubricItemId, submissionId])
 }
 
 // Enums

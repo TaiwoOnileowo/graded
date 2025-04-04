@@ -11,7 +11,13 @@ declare module "next-auth" {
       id: string;
       image: string;
       email: string;
-      role: string | null;
+      role: "STUDENT" | "LECTURER" | "ADMIN" | null;
+      lecturer?: {
+        id: string;
+        title: string | null;
+        department: string;
+        bio: string | null;
+      } | null;
     };
   }
   interface User {
@@ -19,7 +25,13 @@ declare module "next-auth" {
     name?: string | null;
     email?: string | null;
     image?: string | null;
-    role: string | null;
+    role: "STUDENT" | "LECTURER" | "ADMIN" | null;
+    lecturer?: {
+      id: string;
+      title: string | null;
+      department: string;
+      bio: string | null;
+    } | null;
   }
 }
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -65,6 +77,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.email = user.email;
         token.role = user.role;
         token.name = user.name;
+        token.lecturer = user.lecturer;
       }
       token.exp = Math.floor(Date.now() / 1000) + 2592000;
       return token;
@@ -73,7 +86,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       session.user.id = token.id as string;
       session.user.name = token.name as string;
       session.user.email = token.email as string;
-      session.user.role = token.role as string;
+      session.user.lecturer = token.lecturer as any;
+      session.user.role = token.role as "STUDENT" | "LECTURER" | "ADMIN";
       return session;
     },
   },
