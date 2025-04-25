@@ -6,6 +6,7 @@
     "dev": "next dev -p3005",
     "build": "next build",
     "start": "next start",
+    "postinstall": "prisma db pull&prisma generate --no-engine",
     "lint": "next lint"
   },
   "dependencies": {
