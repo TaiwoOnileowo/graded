@@ -56,7 +56,7 @@ const CodeEditor = () => {
       setIsRunning(true);
       setOutput(null);
 
-      const response = await axios.post("/api/execute", {
+      const response = await axios.post("/api2/execute", {
         code,
         language,
       });

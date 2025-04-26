@@ -1,4 +1,4 @@
-import CodeEditor from "@/components/CodeEditor";
+import CodeEditor from "@/components/editor/CodeEditor";
 
 const Page = async ({ params }: any) => {
     const {assignmentId} = params;
