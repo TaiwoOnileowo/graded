@@ -1,7 +1,12 @@
+import CodeEditor from "@/components/CodeEditor";
+
 const Page = async ({ params }: any) => {
     const {assignmentId} = params;
-  return (
-    <div>Assignment Editor for assignment {assignmentId}</div>
+    return (
+        <>
+            <h2 className="text-2xl py-2 text-center">Assignment {assignmentId}</h2>
+        <CodeEditor />
+      </>
   )
 }
 
