@@ -85,7 +85,7 @@ const CodeEditor: React.FC = () => {
       setIsRunning(true);
       setOutput(null);
 
-      const response = await axios.post<ExecutionResult>("/api/execute", {
+      const response = await axios.post<ExecutionResult>("/api/editor/execute", {
         code,
         language,
       });
