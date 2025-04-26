@@ -112,14 +112,16 @@ export default function StudentCoursePage({ courseId }: { courseId: string }) {
                         Pending
                       </div>
                     )}
-                    <Button
-                      size="sm"
-                      className="bg-blue-600 cursor-pointer hover:bg-blue-700"
-                    >
-                      {assignment.completed
-                        ? "View Submission"
-                        : "Start Assignment"}
-                    </Button>
+                    <Link href={assignment.completed ? `/courses/${courseId}/assignments/${assignment.id}/submission` : `/courses/${courseId}/assignments/${assignment.id}/editor`}>
+                      <Button
+                        size="sm"
+                        className="bg-blue-600 cursor-pointer hover:bg-blue-700"
+                        >
+                        {assignment.completed
+                          ? "View Submission"
+                          : "Start Assignment"}
+                      </Button>
+                        </Link>
                   </CardFooter>
                 </Card>
               ))}
