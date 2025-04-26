@@ -1,0 +1,31 @@
+# docker/docker-compose.yml
+
+version: '3.8'
+
+services:
+  sandbox:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: code-execution-sandbox
+    restart: unless-stopped
+    volumes:
+      - ../sandbox-api:/app
+    # Use gVisor for improved isolation
+    security_opt:
+      - no-new-privileges:true
+    # Set resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    # Network isolation
+    networks:
+      - sandbox_net
+    ports:
+      - "3001:3001"
+
+networks:
+  sandbox_net:
+    driver: bridge
