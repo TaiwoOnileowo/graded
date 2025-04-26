@@ -9,7 +9,9 @@ const Page = async ({ params }: any) => {
   const role = session?.user?.role;
   const isStudent = role === "STUDENT";
   const course = await getCourseById(courseId);
- 
+  // if (!course) {
+  //   return notFound();
+  // }
   console.log("course", course);
   return (
     <>
