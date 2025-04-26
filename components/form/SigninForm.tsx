@@ -14,7 +14,7 @@ import { signInUser } from "@/lib/actions/user.action";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { z } from "zod";
@@ -29,7 +29,7 @@ const SigninForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const callbackUrl = searchParams.get("redirect") || "/";
+  const callbackUrl = searchParams?.get("redirect") || "/";
 
   // Initialize form
   const form = useForm<SignInFormValues>({

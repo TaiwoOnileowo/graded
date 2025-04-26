@@ -9,7 +9,6 @@ import {
 
 export default function SignInPage() {
 
-
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="space-y-1">
