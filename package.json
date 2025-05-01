@@ -7,7 +7,11 @@
     "build": "next build",
     "start": "next start",
     "postinstall": "prisma db pull&prisma generate --no-engine",
-    "lint": "next lint"
+    "lint": "next lint",
+    "docker:build": "docker build -t code-executor -f docker/Dockerfile .",
+    "docker:start": "docker run -d --name code-executor -p 3001:3001 --security-opt=no-new-privileges --cpus=0.5 --memory=512m code-executor",
+    "docker:stop": "docker stop code-executor && docker rm code-executor",
+    "docker:restart": "npm run docker:stop && npm run docker:start"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",

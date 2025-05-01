@@ -1,6 +1,6 @@
+// components/CodeEditor.js
 "use client";
-
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import axios from "axios";
 
@@ -9,44 +9,56 @@ const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
 });
 
-// Define types for the code execution response
-interface ExecutionResult {
-  success: boolean;
-  output: string | null;
-  error: string | null;
-  executionTime: number | string;
-}
+const CodeEditor = () => {
+  const [language, setLanguage] = useState("c");
+  const [theme, setTheme] = useState("vs-dark");
+  const [output, setOutput] = useState(null);
+  const [isRunning, setIsRunning] = useState(false);
+  const [dockerStatus, setDockerStatus] = useState({ checking: true });
+  const editorRef = useRef(null);
 
-// Define output state interface
-interface OutputState {
-  success: boolean;
-  message: string;
-  stdout?: string;
-  stderr?: string;
-  executionTime?: number | string;
-}
+  // Check Docker status on component mount
+  useEffect(() => {
+    checkDockerStatus();
+  }, []);
 
-// Define language option interface
-interface LanguageOption {
-  id: string;
-  name: string;
-}
+  // Check Docker and container status
+  const checkDockerStatus = async () => {
+    try {
+      setDockerStatus({ checking: true });
+      const response = await axios.get("/api/docker/status");
+      console.log("Docker status response:", response.data);
+      setDockerStatus({
+        checking: false,
+        docker: response.data.docker,
+        container: response.data.container,
+      });
+    } catch (error) {
+      setDockerStatus({
+        checking: false,
+        error: error.response?.data?.error || "Failed to check Docker status",
+      });
+    }
+  };
 
-// Define theme option interface
-interface ThemeOption {
-  id: string;
-  name: string;
-}
-
-const CodeEditor: React.FC = () => {
-  const [language, setLanguage] = useState<string>("c");
-  const [theme, setTheme] = useState<string>("vs-dark");
-  const [output, setOutput] = useState<OutputState | null>(null);
-  const [isRunning, setIsRunning] = useState<boolean>(false);
-  const editorRef = useRef<any>(null);
+  // Start Docker container
+  const startDockerContainer = async () => {
+    try {
+      setDockerStatus({ ...dockerStatus, starting: true });
+      await axios.post("/api/docker/start");
+      await checkDockerStatus();
+    } catch (error) {
+      setDockerStatus({
+        ...dockerStatus,
+        starting: false,
+        error:
+          error.response?.data?.error || "Failed to start Docker container",
+      });
+    }
+  };
 
   // Languages supported by the editor
-  const languages: LanguageOption[] = [
+  const languages = [
     { id: "c", name: "C" },
     { id: "cpp", name: "C++" },
     { id: "python", name: "Python" },
@@ -55,19 +67,30 @@ const CodeEditor: React.FC = () => {
   ];
 
   // Themes available for the editor
-  const themes: ThemeOption[] = [
+  const themes = [
     { id: "vs", name: "Light" },
     { id: "vs-dark", name: "Dark" },
   ];
 
   // Store a reference to the editor instance
-  const handleEditorDidMount = (editor: any): void => {
+  const handleEditorDidMount = (editor) => {
     editorRef.current = editor;
   };
 
   // Execute the code
-  const handleRunCode = async (): Promise<void> => {
+  const handleRunCode = async () => {
     if (!editorRef.current) return;
+
+    // Check Docker status first
+    if (!dockerStatus.docker?.running || !dockerStatus.container?.running) {
+      setOutput({
+        success: false,
+        message: "Code execution service is not available",
+        stdout: "",
+        stderr: "Please start the Docker container to run code.",
+      });
+      return;
+    }
 
     const code = editorRef.current.getValue();
 
@@ -85,22 +108,13 @@ const CodeEditor: React.FC = () => {
       setIsRunning(true);
       setOutput(null);
 
-      const response = await axios.post<ExecutionResult>("/api/editor/execute", {
+      const response = await axios.post("/api/editor/execute", {
         code,
         language,
       });
 
-      const result = response.data;
-      
-      // Map API response to component output format
-      setOutput({
-        success: result.success,
-        message: result.success ? "Code executed successfully!" : "Execution failed.",
-        stdout: result.output || "",
-        stderr: result.error || "",
-        executionTime: result.executionTime
-      });
-    } catch (error: any) {
+      setOutput(response.data);
+    } catch (error) {
       console.error("Error running code:", error);
 
       setOutput({
@@ -115,7 +129,7 @@ const CodeEditor: React.FC = () => {
   };
 
   // Get default code for selected language
-  const getDefaultCode = (lang: string): string => {
+  const getDefaultCode = (lang) => {
     switch (lang) {
       case "c":
         return `#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}`;
@@ -133,7 +147,7 @@ const CodeEditor: React.FC = () => {
   };
 
   // Handle language change
-  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
+  const handleLanguageChange = (e) => {
     const newLanguage = e.target.value;
     setLanguage(newLanguage);
 
@@ -143,8 +157,116 @@ const CodeEditor: React.FC = () => {
     }
   };
 
+  // Docker status indicator
+  const renderDockerStatus = () => {
+    if (dockerStatus.checking) {
+      return (
+        <div className="flex items-center text-gray-500">
+          <svg
+            className="animate-spin h-5 w-5 mr-2"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+          Checking Docker status...
+        </div>
+      );
+    }
+
+    if (!dockerStatus.docker?.running) {
+      return (
+        <div className="bg-red-100 text-red-700 p-2 rounded flex items-center">
+          <svg
+            className="h-5 w-5 mr-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          Docker is not running. Please start Docker Desktop.
+        </div>
+      );
+    }
+
+    if (!dockerStatus.container?.running) {
+      return (
+        <div className="flex items-center">
+          <span className="bg-yellow-100 text-yellow-700 p-2 rounded flex items-center mr-2">
+            <svg
+              className="h-5 w-5 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            Executor container is not running
+          </span>
+
+          <button
+            onClick={startDockerContainer}
+            disabled={dockerStatus.starting}
+            className={`px-3 py-1 rounded text-white ${
+              dockerStatus.starting
+                ? "bg-gray-500"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
+          >
+            {dockerStatus.starting ? "Starting..." : "Start Container"}
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-green-100 text-green-700 p-2 rounded flex items-center">
+        <svg
+          className="h-5 w-5 mr-2"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M5 13l4 4L19 7"
+          />
+        </svg>
+        Code execution service is running
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col w-full h-full">
+      <div className="mb-4">{renderDockerStatus()}</div>
+
       <div className="flex justify-between items-center p-4 bg-gray-100 border-b">
         <div className="flex items-center space-x-4">
           <select
@@ -161,7 +283,7 @@ const CodeEditor: React.FC = () => {
 
           <select
             value={theme}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setTheme(e.target.value)}
+            onChange={(e) => setTheme(e.target.value)}
             className="p-2 border rounded"
           >
             {themes.map((t) => (
@@ -174,9 +296,17 @@ const CodeEditor: React.FC = () => {
 
         <button
           onClick={handleRunCode}
-          disabled={isRunning}
+          disabled={
+            isRunning ||
+            !dockerStatus.docker?.running ||
+            !dockerStatus.container?.running
+          }
           className={`px-4 py-2 rounded text-white ${
-            isRunning ? "bg-gray-500" : "bg-green-600 hover:bg-green-700"
+            isRunning ||
+            !dockerStatus.docker?.running ||
+            !dockerStatus.container?.running
+              ? "bg-gray-500"
+              : "bg-green-600 hover:bg-green-700"
           }`}
         >
           {isRunning ? "Running..." : "Run Code"}
@@ -222,11 +352,6 @@ const CodeEditor: React.FC = () => {
                 >
                   {output.message}
                 </span>
-                {output.executionTime && (
-                  <span className="ml-2 text-gray-600">
-                    (Execution time: {output.executionTime}ms)
-                  </span>
-                )}
               </div>
 
               {output.stdout && (
