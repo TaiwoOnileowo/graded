@@ -17,7 +17,7 @@ const Page = async ({ params }: any) => {
   return (
     <>
       {isStudent ? (
-        <StudentCoursePage courseId={courseId} />
+        <StudentCoursePage course={course} />
       ) : (
         <LecturerCoursePage course={course} />
       )}

@@ -1,33 +1,48 @@
-// components/CodeEditor.js
 "use client";
+
 import React, { useState, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import axios from "axios";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Import Monaco Editor dynamically (client-side only)
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
 });
 
-const CodeEditor = () => {
-  const [language, setLanguage] = useState("c");
+interface CodeEditorProps {
+  initialCode: string;
+}
+
+const CodeEditor: React.FC<CodeEditorProps> = ({ initialCode }) => {
+  const [language, setLanguage] = useState("ruby");
   const [theme, setTheme] = useState("vs-dark");
-  const [output, setOutput] = useState(null);
+  const [output, setOutput] = useState<{
+    success: boolean;
+    message: string;
+    stdout: string;
+    stderr: string;
+  } | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [dockerStatus, setDockerStatus] = useState({ checking: true });
-  const editorRef = useRef(null);
+  const editorRef = useRef<any>(null);
 
-  // Check Docker status on component mount
   useEffect(() => {
     checkDockerStatus();
   }, []);
 
-  // Check Docker and container status
   const checkDockerStatus = async () => {
     try {
       setDockerStatus({ checking: true });
       const response = await axios.get("/api/docker/status");
-      console.log("Docker status response:", response.data);
       setDockerStatus({
         checking: false,
         docker: response.data.docker,
@@ -41,7 +56,6 @@ const CodeEditor = () => {
     }
   };
 
-  // Start Docker container
   const startDockerContainer = async () => {
     try {
       setDockerStatus({ ...dockerStatus, starting: true });
@@ -57,31 +71,26 @@ const CodeEditor = () => {
     }
   };
 
-  // Languages supported by the editor
   const languages = [
-    { id: "c", name: "C" },
-    { id: "cpp", name: "C++" },
+    { id: "ruby", name: "Ruby" },
     { id: "python", name: "Python" },
     { id: "javascript", name: "JavaScript" },
     { id: "java", name: "Java" },
+    { id: "cpp", name: "C++" },
   ];
 
-  // Themes available for the editor
   const themes = [
     { id: "vs", name: "Light" },
     { id: "vs-dark", name: "Dark" },
   ];
 
-  // Store a reference to the editor instance
-  const handleEditorDidMount = (editor) => {
+  const handleEditorDidMount = (editor: any) => {
     editorRef.current = editor;
   };
 
-  // Execute the code
   const handleRunCode = async () => {
     if (!editorRef.current) return;
 
-    // Check Docker status first
     if (!dockerStatus.docker?.running || !dockerStatus.container?.running) {
       setOutput({
         success: false,
@@ -112,11 +121,8 @@ const CodeEditor = () => {
         code,
         language,
       });
-
       setOutput(response.data);
     } catch (error) {
-      console.error("Error running code:", error);
-
       setOutput({
         success: false,
         message: "Failed to run code.",
@@ -128,42 +134,12 @@ const CodeEditor = () => {
     }
   };
 
-  // Get default code for selected language
-  const getDefaultCode = (lang) => {
-    switch (lang) {
-      case "c":
-        return `#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}`;
-      case "cpp":
-        return `#include <iostream>\n\nint main() {\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}`;
-      case "python":
-        return `print("Hello, World!")`;
-      case "javascript":
-        return `console.log("Hello, World!");`;
-      case "java":
-        return `public class Solution {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}`;
-      default:
-        return "";
-    }
-  };
-
-  // Handle language change
-  const handleLanguageChange = (e) => {
-    const newLanguage = e.target.value;
-    setLanguage(newLanguage);
-
-    // Update editor content with default code for the selected language
-    if (editorRef.current) {
-      editorRef.current.setValue(getDefaultCode(newLanguage));
-    }
-  };
-
-  // Docker status indicator
   const renderDockerStatus = () => {
     if (dockerStatus.checking) {
       return (
-        <div className="flex items-center text-gray-500">
+        <div className="flex items-center text-gray-500 text-sm">
           <svg
-            className="animate-spin h-5 w-5 mr-2"
+            className="animate-spin h-4 w-4 mr-2"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -189,9 +165,9 @@ const CodeEditor = () => {
 
     if (!dockerStatus.docker?.running) {
       return (
-        <div className="bg-red-100 text-red-700 p-2 rounded flex items-center">
+        <div className="bg-red-100 text-red-700 p-2 rounded flex items-center text-sm">
           <svg
-            className="h-5 w-5 mr-2"
+            className="h-4 w-4 mr-2"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -210,10 +186,10 @@ const CodeEditor = () => {
 
     if (!dockerStatus.container?.running) {
       return (
-        <div className="flex items-center">
+        <div className="flex items-center text-sm">
           <span className="bg-yellow-100 text-yellow-700 p-2 rounded flex items-center mr-2">
             <svg
-              className="h-5 w-5 mr-2"
+              className="h-4 w-4 mr-2"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -227,26 +203,25 @@ const CodeEditor = () => {
             </svg>
             Executor container is not running
           </span>
-
-          <button
+          <Button
             onClick={startDockerContainer}
             disabled={dockerStatus.starting}
-            className={`px-3 py-1 rounded text-white ${
+            className={`text-sm ${
               dockerStatus.starting
                 ? "bg-gray-500"
                 : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
             {dockerStatus.starting ? "Starting..." : "Start Container"}
-          </button>
+          </Button>
         </div>
       );
     }
 
     return (
-      <div className="bg-green-100 text-green-700 p-2 rounded flex items-center">
+      <div className="bg-green-100 text-green-700 p-2 rounded flex items-center text-sm">
         <svg
-          className="h-5 w-5 mr-2"
+          className="h-4 w-4 mr-2"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -264,62 +239,67 @@ const CodeEditor = () => {
   };
 
   return (
-    <div className="flex flex-col w-full h-full">
-      <div className="mb-4">{renderDockerStatus()}</div>
+    <div className="flex flex-col h-full">
+      {/* Editor Header */}
+      <div className="flex justify-between items-center p-3 bg-gray-800 text-white">
+        <div className="flex items-center space-x-3">
+          <Select value={language} onValueChange={setLanguage}>
+            <SelectTrigger className="w-[120px] bg-gray-700 border-gray-600 text-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {languages.map((lang) => (
+                <SelectItem key={lang.id} value={lang.id}>
+                  {lang.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-      <div className="flex justify-between items-center p-4 bg-gray-100 border-b">
-        <div className="flex items-center space-x-4">
-          <select
-            value={language}
-            onChange={handleLanguageChange}
-            className="p-2 border rounded"
-          >
-            {languages.map((lang) => (
-              <option key={lang.id} value={lang.id}>
-                {lang.name}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={theme}
-            onChange={(e) => setTheme(e.target.value)}
-            className="p-2 border rounded"
-          >
-            {themes.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
-            ))}
-          </select>
+          <Select value={theme} onValueChange={setTheme}>
+            <SelectTrigger className="w-[100px] bg-gray-700 border-gray-600 text-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {themes.map((t) => (
+                <SelectItem key={t.id} value={t.id}>
+                  {t.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
-        <button
-          onClick={handleRunCode}
-          disabled={
-            isRunning ||
-            !dockerStatus.docker?.running ||
-            !dockerStatus.container?.running
-          }
-          className={`px-4 py-2 rounded text-white ${
-            isRunning ||
-            !dockerStatus.docker?.running ||
-            !dockerStatus.container?.running
-              ? "bg-gray-500"
-              : "bg-green-600 hover:bg-green-700"
-          }`}
-        >
-          {isRunning ? "Running..." : "Run Code"}
-        </button>
+        <div className="flex items-center space-x-3">
+          {renderDockerStatus()}
+          <Button
+            onClick={handleRunCode}
+            disabled={
+              isRunning ||
+              !dockerStatus.docker?.running ||
+              !dockerStatus.container?.running
+            }
+            className={`text-sm ${
+              isRunning ||
+              !dockerStatus.docker?.running ||
+              !dockerStatus.container?.running
+                ? "bg-gray-500"
+                : "bg-green-600 hover:bg-green-700"
+            }`}
+          >
+            {isRunning ? "Running..." : "Run Code"}
+          </Button>
+        </div>
       </div>
 
+      {/* Editor and Output */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow">
-        <div className="border rounded h-full min-h-[400px]">
+        <div className="border rounded h-[600px]">
           <MonacoEditor
             height="100%"
             language={language}
             theme={theme}
-            defaultValue={getDefaultCode(language)}
+            defaultValue={initialCode}
             onMount={handleEditorDidMount}
             options={{
               minimap: { enabled: false },
@@ -327,52 +307,56 @@ const CodeEditor = () => {
               automaticLayout: true,
               fontSize: 14,
               tabSize: 2,
+              padding: { top: 10 },
             }}
           />
         </div>
 
-        <div className="border rounded p-4 bg-gray-50 overflow-auto h-full min-h-[400px]">
-          <h2 className="text-lg font-semibold mb-2">Output</h2>
-
-          {output === null ? (
-            <p className="text-gray-500">
-              Run your code to see the output here.
-            </p>
-          ) : (
-            <div>
-              <div
-                className={`mb-4 p-2 rounded ${
-                  output.success ? "bg-green-100" : "bg-red-100"
-                }`}
-              >
-                <span
-                  className={`font-bold ${
-                    output.success ? "text-green-700" : "text-red-700"
-                  }`}
-                >
-                  {output.message}
-                </span>
-              </div>
-
-              {output.stdout && (
-                <div className="mb-4">
-                  <h3 className="font-medium mb-1">Standard Output:</h3>
-                  <pre className="bg-white p-2 border rounded whitespace-pre-wrap">
-                    {output.stdout}
-                  </pre>
-                </div>
-              )}
-
-              {output.stderr && (
+        <div className="border rounded p-4 bg-gray-50 overflow-auto h-[600px]">
+          <Tabs defaultValue="output" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="output">Output</TabsTrigger>
+            </TabsList>
+            <TabsContent value="output">
+              {output === null ? (
+                <p className="text-gray-500">
+                  Run your code to see the output here.
+                </p>
+              ) : (
                 <div>
-                  <h3 className="font-medium mb-1">Standard Error:</h3>
-                  <pre className="bg-white p-2 border rounded text-red-600 whitespace-pre-wrap">
-                    {output.stderr}
-                  </pre>
+                  <div
+                    className={`mb-4 p-2 rounded ${
+                      output.success ? "bg-green-100" : "bg-red-100"
+                    }`}
+                  >
+                    <span
+                      className={`font-bold ${
+                        output.success ? "text-green-700" : "text-red-700"
+                      }`}
+                    >
+                      {output.message}
+                    </span>
+                  </div>
+                  {output.stdout && (
+                    <div className="mb-4">
+                      <h3 className="font-medium mb-1">Standard Output:</h3>
+                      <pre className="bg-white p-2 border rounded whitespace-pre-wrap">
+                        {output.stdout}
+                      </pre>
+                    </div>
+                  )}
+                  {output.stderr && (
+                    <div>
+                      <h3 className="font-medium mb-1">Standard Error:</h3>
+                      <pre className="bg-white p-2 border rounded text-red-600 whitespace-pre-wrap">
+                        {output.stderr}
+                      </pre>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
-          )}
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>

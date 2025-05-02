@@ -9,9 +9,17 @@ const Page = async () => {
   const role = session?.user?.role;
   const isStudent = role === "STUDENT";
   const courses = await getCourses();
+  console.log(session, "Session");
   return (
     <>
-      {isStudent ? <CoursesHome /> : <LecturerCourseHome courses={courses} />}
+      {isStudent ? (
+        <CoursesHome
+          courses={courses}
+          studentId={session?.user?.student?.id!}
+        />
+      ) : (
+        <LecturerCourseHome courses={courses} />
+      )}
     </>
   );
 };

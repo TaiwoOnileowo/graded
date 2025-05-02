@@ -20,7 +20,7 @@ export const createCourse = async (courseData: CourseData) => {
   }
 };
 
-export const getCourses = async () => {
+export const getCourses = async (studentId?: string) => {
   try {
     const courses = await prisma.course.findMany({
       select: {
@@ -29,6 +29,15 @@ export const getCourses = async () => {
         code: true,
         description: true,
         isPublished: true,
+        lecturer: {
+          select: {
+            user: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
         assignments: {
           select: {
             id: true,
@@ -40,6 +49,7 @@ export const getCourses = async () => {
         enrollments: {
           select: {
             id: true,
+            studentId: true,
           },
           where: {
             status: "ENROLLED",
@@ -54,7 +64,13 @@ export const getCourses = async () => {
         code: course.code,
         description: course.description,
         isPublished: course.isPublished,
+        lecturer: course.lecturer.user.name,
         assignments: course.assignments.length,
+        enrolled: course.enrollments.find((enrollment) => {
+          return enrollment.studentId === studentId;
+        })
+          ? true
+          : false,
         students: course.enrollments.length,
       };
     });
@@ -64,7 +80,7 @@ export const getCourses = async () => {
   }
 };
 
-export const getCourseById = async (courseId: string) => {
+export const getCourseById = async (courseId: string, studentId?: string) => {
   try {
     const course = await prisma.course.findUnique({
       where: {
@@ -76,12 +92,92 @@ export const getCourseById = async (courseId: string) => {
             submissions: true,
           },
         },
+        lecturer: {
+          select: {
+            user: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
         enrollments: true,
       },
     });
-    return course;
+    return {
+      ...course,
+      assignments: course?.assignments.map((assignment) => ({
+        ...assignment,
+        completed: assignment.submissions.find(
+          (submission) => studentId === submission.studentId
+        )
+          ? true
+          : false,
+      })),
+    };
   } catch (error) {
     console.log(error, "Error");
     throw new Error("Error fetching course");
+  }
+};
+
+export const getEnrolledCourses = async (studentId: string) => {
+  try {
+    const enrolledCourses = await prisma.course.findMany({
+      where: {
+        enrollments: {
+          some: {
+            studentId: studentId,
+            status: "ENROLLED",
+          },
+        },
+      },
+      include: {
+        lecturer: {
+          select: {
+            user: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        assignments: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+    return enrolledCourses.map((course) => {
+      return {
+        id: course.id,
+        name: course.name,
+        code: course.code,
+        description: course.description,
+        assignments: course.assignments.length,
+        lecturer: course.lecturer.user.name,
+      };
+    });
+  } catch (error) {
+    console.log(error, "Error");
+    throw new Error("Error fetching enrolled courses");
+  }
+};
+
+export const enrollStudent = async (courseId: string, studentId: string) => {
+  console.log(courseId, studentId, "enrollStudent");
+  try {
+    const enrollment = await prisma.enrollment.create({
+      data: {
+        courseId: courseId,
+        studentId: studentId,
+        status: "ENROLLED",
+      },
+    });
+    return enrollment;
+  } catch (error) {
+    console.log(error, "Error");
+    throw new Error("Error enrolling student");
   }
 };

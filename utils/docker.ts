@@ -20,11 +20,11 @@ export const checkDockerStatus = async () => {
 // Check if our container is running
 export const checkContainerStatus = async () => {
   try {
-    const { stdout } = await execPromise(
+    const { stdout, stderr } = await execPromise(
       'docker ps --filter "name=code-executor" --format "{{.Names}}"'
     );
 
-    console.log("Container status:", stdout);
+    console.log("Container status dax:", stdout, stderr);
     return {
       running: stdout.trim().includes("code-executor"),
     };

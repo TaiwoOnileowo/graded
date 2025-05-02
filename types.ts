@@ -18,6 +18,8 @@ export interface ICourse {
   assignments: number;
   students: number;
   isPublished: boolean;
+  enrolled: boolean;
+  lecturer: string;
 }
 
 export interface RubricItem {
@@ -25,4 +27,13 @@ export interface RubricItem {
   title: string;
   description: string;
   maxPoints: number;
+}
+
+export interface IEnrolledCourse {
+  id: string;
+  name: string;
+  code: string;
+  description: string | null;
+  assignments: number;
+  lecturer: string;
 }
