@@ -89,3 +89,40 @@ export async function createAssignment(formData: FormData) {
     return { success: false, error: "Failed to create assignment" };
   }
 }
+
+export async function getAssignmentDetails(
+  assignmentId: string,
+  studentId: string
+) {
+  try {
+    const assignment = await prisma.assignment.findUnique({
+      where: { id: assignmentId },
+      include: {
+        course: true,
+        rubrics: true,
+        testCases: true,
+      },
+    });
+
+    if (!assignment) {
+      return { success: false, error: "Assignment not found" };
+    }
+
+    // Check if the student is enrolled in the course
+    const enrollment = await prisma.enrollment.findFirst({
+      where: {
+        studentId: studentId,
+        courseId: assignment.courseId,
+        status: "ENROLLED",
+      },
+    });
+
+    if (!enrollment) {
+      return { success: false, error: "Not enrolled in this course" };
+    }
+
+    return { success: true, data: assignment };
+  } catch (error) {
+    return { success: false, error: "Failed to fetch assignment details" };
+  }
+}

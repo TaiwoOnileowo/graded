@@ -19,16 +19,21 @@ WORKDIR /app
 # Create directories for code execution
 RUN mkdir -p /app/submissions && chown -R coderunner:coderunner /app/submissions
 
-# Copy necessary files, including Prisma schema
-COPY --chown=coderunner:coderunner ./lib/executor.ts /app/executor.ts
+# Copy necessary files
+COPY --chown=coderunner:coderunner ./lib/executor.ts /app/lib/executor.ts
 COPY --chown=coderunner:coderunner ./package.json /app/package.json
+COPY --chown=coderunner:coderunner ./tsconfig.json /app/tsconfig.json
 COPY --chown=coderunner:coderunner ./prisma/schema.prisma /app/prisma/schema.prisma
 
-# Install dependencies, skipping postinstall script
-RUN npm install --only=production --ignore-scripts
+# Install dependencies and TypeScript
+RUN npm install --only=production --ignore-scripts && \
+    npm install -D typescript
 
 # Generate Prisma client
 RUN npx prisma generate --no-engine
+
+# Compile TypeScript to JavaScript
+RUN npx tsc
 
 # Switch to non-root user
 USER coderunner
@@ -36,5 +41,5 @@ USER coderunner
 # Expose port
 EXPOSE 3001
 
-# Start with node
-CMD ["node", "/app/executor.ts"]
+# Start with the compiled JavaScript file
+CMD ["node", "/app/dist/lib/executor.js"]

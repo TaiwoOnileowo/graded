@@ -12,6 +12,9 @@ declare module "next-auth" {
       image: string;
       email: string;
       role: "STUDENT" | "LECTURER" | "ADMIN" | null;
+      student?: {
+        id: string;
+      } | null;
       lecturer?: {
         id: string;
         title: string | null;
@@ -26,6 +29,9 @@ declare module "next-auth" {
     email?: string | null;
     image?: string | null;
     role: "STUDENT" | "LECTURER" | "ADMIN" | null;
+    student?: {
+      id: string;
+    } | null;
     lecturer?: {
       id: string;
       title: string | null;
@@ -78,6 +84,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.role = user.role;
         token.name = user.name;
         token.lecturer = user.lecturer;
+        token.student = user.student;
       }
       token.exp = Math.floor(Date.now() / 1000) + 2592000;
       return token;
@@ -87,6 +94,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       session.user.name = token.name as string;
       session.user.email = token.email as string;
       session.user.lecturer = token.lecturer as any;
+      session.user.student = token.student as any;
       session.user.role = token.role as "STUDENT" | "LECTURER" | "ADMIN";
       return session;
     },

@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
   try {
     // Check if Docker is running
     const dockerStatus = await checkDockerStatus();
-
+    console.log(dockerStatus, "docketstatus");
     if (!dockerStatus.running) {
       return NextResponse.json(dockerStatus, { status: 503 });
     }
