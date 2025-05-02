@@ -6,6 +6,7 @@
     "dev": "next dev -p3005",
     "build": "next build",
     "start": "next start",
+    "db": "npx prisma studio",
     "postinstall": "prisma db pull&prisma generate --no-engine",
     "lint": "next lint",
     "docker:build": "docker build -t code-executor -f docker/Dockerfile .",
