@@ -86,12 +86,12 @@ model RubricItem {
 }
 
 model TestCase {
-  id           String     @id @default(cuid())
-  input        String
+  id             String     @id @default(cuid())
+  input          String
   expectedOutput String
-  description  String?
-  assignmentId String
-  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  description    String?
+  assignmentId   String
+  assignment     Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
 }
 
 model Enrollment {
