@@ -48,7 +48,7 @@ model Course {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   lecturerId  String
-  isPublished Boolean      @default(false)
+  isPublished Boolean      @default(true)
   code        String
   assignments Assignment[]
   lecturer    Lecturer     @relation(fields: [lecturerId], references: [id])
@@ -67,11 +67,12 @@ model Assignment {
   codeTemplate     String?
   expectedSolution String?
   hint             String?
-  isPublished      Boolean      @default(false)
+  isPublished      Boolean      @default(true)
   questionText     String?
   course           Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
   rubrics          RubricItem[]
   submissions      Submission[]
+  testCases        TestCase[]
 }
 
 model RubricItem {
@@ -82,6 +83,15 @@ model RubricItem {
   assignmentId String
   evaluations  RubricEvaluation[]
   assignment   Assignment         @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+}
+
+model TestCase {
+  id           String     @id @default(cuid())
+  input        String
+  expectedOutput String
+  description  String?
+  assignmentId String
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
 }
 
 model Enrollment {

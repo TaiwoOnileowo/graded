@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   BookOpen,
   Edit,
@@ -8,6 +7,7 @@ import {
   Trash,
   Users,
 } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +25,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ICourse } from "@/types";
 
 export default function CoursesPage({ courses }: { courses: ICourse[] }) {
@@ -59,26 +58,11 @@ export default function CoursesPage({ courses }: { courses: ICourse[] }) {
         </div>
       </div>
 
-      <Tabs defaultValue="active">
-        <TabsList>
-          <TabsTrigger value="active">Active Courses</TabsTrigger>
-          <TabsTrigger value="draft">Draft Courses</TabsTrigger>
-        </TabsList>
-        <TabsContent value="active" className="mt-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {activeCourses.map((course) => (
-              <CourseCard key={course.id} course={course} />
-            ))}
-          </div>
-        </TabsContent>
-        <TabsContent value="draft" className="mt-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {draftCourses.map((course) => (
-              <CourseCard key={course.id} course={course} />
-            ))}
-          </div>
-        </TabsContent>
-      </Tabs>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {activeCourses.map((course) => (
+          <CourseCard key={course.id} course={course} />
+        ))}
+      </div>
     </div>
   );
 }

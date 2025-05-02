@@ -3,7 +3,7 @@ import LecturerNewAssignmentPage from "@/components/lecturer/AssignmentHome";
 import { notFound } from "next/navigation";
 
 const Page = async ({ params }: { params: any }) => {
-  const { id } = await params;
+  const { courseId: id } = await params;
   const session = await auth();
   const role = session?.user?.role;
   const isStudent = role === "STUDENT";

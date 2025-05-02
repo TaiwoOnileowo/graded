@@ -10,7 +10,6 @@ export const createCourse = async (courseData: CourseData) => {
         name: courseData.name,
         code: courseData.code,
         description: courseData.description,
-        isPublished: courseData.isPublished,
         lecturerId: courseData.lecturerId,
       },
     });

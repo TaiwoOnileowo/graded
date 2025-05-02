@@ -7,7 +7,6 @@ export interface CourseData {
   name: string;
   code: string;
   description?: string;
-  isPublished: boolean;
   lecturerId: string;
 }
 
@@ -19,4 +18,11 @@ export interface ICourse {
   assignments: number;
   students: number;
   isPublished: boolean;
+}
+
+export interface RubricItem {
+  id: string;
+  title: string;
+  description: string;
+  maxPoints: number;
 }

@@ -15,7 +15,6 @@ const CreateCourse = ({ id }: { id: string }) => {
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
-  const [isPublished, setIsPublished] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -31,7 +30,6 @@ const CreateCourse = ({ id }: { id: string }) => {
           name,
           code,
           description,
-          isPublished,
           lecturerId: id,
         });
 
@@ -75,15 +73,6 @@ const CreateCourse = ({ id }: { id: string }) => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="published"
-            checked={isPublished}
-            onCheckedChange={setIsPublished}
-          />
-          <Label htmlFor="published">Publish course immediately</Label>
         </div>
       </CardContent>
 
