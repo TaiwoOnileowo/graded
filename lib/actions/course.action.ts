@@ -79,6 +79,62 @@ export const getCourses = async (studentId?: string) => {
     throw new Error("Error fetching courses");
   }
 };
+export const getLecuterCourses = async (lecturerId?: string) => {
+  try {
+    const courses = await prisma.course.findMany({
+      where: {
+        lecturerId,
+      },
+      select: {
+        id: true,
+        name: true,
+        code: true,
+        description: true,
+        isPublished: true,
+        lecturer: {
+          select: {
+            user: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        assignments: {
+          select: {
+            id: true,
+          },
+          where: {
+            isPublished: true,
+          },
+        },
+        enrollments: {
+          select: {
+            id: true,
+            studentId: true,
+          },
+          where: {
+            status: "ENROLLED",
+          },
+        },
+      },
+    });
+    return courses.map((course) => {
+      return {
+        id: course.id,
+        name: course.name,
+        code: course.code,
+        description: course.description,
+        isPublished: course.isPublished,
+        lecturer: course.lecturer.user.name,
+        assignments: course.assignments.length,
+      };
+    });
+  } catch (error) {
+    console.log(error, "Error");
+    throw new Error("Error fetching courses");
+  }
+};
 
 export const getCourseById = async (courseId: string, studentId?: string) => {
   try {
