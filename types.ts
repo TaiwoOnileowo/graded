@@ -16,9 +16,9 @@ export interface ICourse {
   code: string;
   description: string | null;
   assignments: number;
-  students: number;
+  students?: number;
   isPublished: boolean;
-  enrolled: boolean;
+  enrolled?: boolean;
   lecturer: string;
 }
 
