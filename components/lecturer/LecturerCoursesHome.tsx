@@ -30,8 +30,9 @@ import { ICourse } from "@/types";
 export default function CoursesPage({ courses }: { courses: ICourse[] }) {
   const activeCourses = courses.filter((course) => course.isPublished);
   const draftCourses = courses.filter((course) => !course.isPublished);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 md:px-8 lg:px-12 w-full mx-auto">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Courses</h2>
@@ -58,11 +59,27 @@ export default function CoursesPage({ courses }: { courses: ICourse[] }) {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {activeCourses.map((course) => (
-          <CourseCard key={course.id} course={course} />
-        ))}
-      </div>
+      {activeCourses.length === 0 && (
+        <div className="grid space-y-4 my-10 justify-center">
+          <h2 className="text-2xl text-center">
+            Oh sorry, You don't have any course yet
+          </h2>
+          <Button className="bg-blue-600 hover:bg-blue-700" asChild>
+            <Link href="/courses/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Create New Course
+            </Link>
+          </Button>
+        </div>
+      )}
+
+      {activeCourses.length !== 0 && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {activeCourses.map((course) => (
+            <CourseCard key={course.id} course={course} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
