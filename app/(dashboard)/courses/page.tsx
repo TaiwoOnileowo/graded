@@ -8,13 +8,13 @@ const Page = async () => {
   const session = await auth();
   const role = session?.user?.role;
   const isStudent = role === "STUDENT";
-  const courses = await getCourses(session?.user?.student?.id!);
+  const studentCourses = await getCourses(session?.user?.student?.id!);
   const lecturerCourse = await getLecuterCourses(session?.user?.lecturer?.id)
   return (
     <>
       {isStudent ? (
         <CoursesHome
-          courses={courses}
+          courses={studentCourses}
           studentId={session?.user?.student?.id!}
         />
       ) : (
