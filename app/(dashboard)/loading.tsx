@@ -2,7 +2,7 @@
 
 const Loading = () => {
     return (
-      <div className="p-6 min-h-screen min-w-5xl space-y-8 animate-pulse bg-white">
+      <div className="p-6 min-h-screen w-full md:min-w-5xl space-y-8 animate-pulse ">
         {/* Dashboard header */}
         <div className="h-10 bg-gray-200 rounded w-1/4" />
   
