@@ -39,7 +39,7 @@ export default function LecturerDashboard({ courses, name, title }: { courses: C
           <div>
             <h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>
             <p className="text-muted-foreground">
-            Welcome back, {title} {name} Here's an overview of your teaching
+            Welcome back, <span className="capitalize">{title}. {name}</span> Here's an overview of your teaching
               activities.
             </p>
           </div>
