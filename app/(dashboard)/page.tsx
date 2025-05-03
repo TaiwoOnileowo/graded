@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import LecturerDashboard from "@/components/lecturer/LecturerDashHome";
 import DashHome from "@/components/student/DashHome";
-import { getEnrolledCourses, getLecuterCourses } from "@/lib/actions/course.action";
+import { getEnrolledCourses, getEnrolledStudents, getLecuterCourses } from "@/lib/actions/course.action";
 import { IEnrolledCourse, Course } from "@/types";
 
 export default async function HomePage() {
@@ -20,7 +20,7 @@ export default async function HomePage() {
       {isStudent ? (
         <DashHome enrolledCourses={enrolledCourses} />
       ) : (
-          <LecturerDashboard courses={lecturerCourses} name={session?.user?.name} title={session?.user.lecturer?.title} />
+          <LecturerDashboard courses={lecturerCourses} name={session?.user?.name} title={session?.user.lecturer?.title} userId={session?.user?.lecturer?.id} />
       )}
     </>
   );

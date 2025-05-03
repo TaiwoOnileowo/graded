@@ -268,3 +268,43 @@ export const getEnrolledStudents = async (courseId: string) => {
     throw new Error("Error fetching enrolled students");
   }
 }
+
+export const  getEnrolledStudentsByLecturer = async (userId: string) =>{
+  const lecturer = await prisma.lecturer.findUnique({
+    where: { id: userId },
+    include: {
+      courses: {
+        include: {
+          enrollments: {
+            include: {
+              student: {
+                include: {
+                  user: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!lecturer) {
+    throw new Error('Lecturer not found');
+  }
+
+  // Flatten and return student users
+  const enrolledStudents = lecturer.courses.flatMap(course =>
+    course.enrollments.map(enrollment => ({
+      courseId: course.id,
+      courseName: course.name,
+      studentId: enrollment.student.id,
+      matricNumber: enrollment.student.matricNumber,
+      level: enrollment.student.level,
+      major: enrollment.student.major,
+      user: enrollment.student.user,
+    }))
+  );
+
+  return enrolledStudents;
+}
