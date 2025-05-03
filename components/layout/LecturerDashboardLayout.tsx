@@ -7,6 +7,7 @@ import {
   GraduationCap,
   LayoutDashboard,
   LogOut,
+  PlusCircle,
   Settings,
   Users,
 } from "lucide-react";
@@ -101,7 +102,7 @@ export default function LecturerDashboardLayout({
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
                       <Link href="/courses/new" className={sideMenuClass("/courses/new")}>
-                        <BookOpen className="h-4 w-4" />
+                        <PlusCircle className="h-4 w-4" />
                         <span>Create Course</span>
                       </Link>
                     </SidebarMenuButton>
