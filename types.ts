@@ -10,6 +10,16 @@ export interface CourseData {
   lecturerId: string;
 }
 
+export interface Course {
+  id: string;
+  name: string;
+  code: string;
+  description?: string;
+  isPublished: boolean;
+  lecturer: string;
+  assignments: number;
+}
+
 export interface ICourse {
   id: string;
   name: string;
