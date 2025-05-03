@@ -334,22 +334,14 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialCode }) => {
                         output.success ? "text-green-700" : "text-red-700"
                       }`}
                     >
-                      {output.message}
+                      {output.output}
                     </span>
                   </div>
-                  {output.stdout && (
+                  {output.executionTime && (
                     <div className="mb-4">
-                      <h3 className="font-medium mb-1">Standard Output:</h3>
+                      <h3 className="font-medium mb-1">Execution Time:</h3>
                       <pre className="bg-white p-2 border rounded whitespace-pre-wrap">
-                        {output.stdout}
-                      </pre>
-                    </div>
-                  )}
-                  {output.stderr && (
-                    <div>
-                      <h3 className="font-medium mb-1">Standard Error:</h3>
-                      <pre className="bg-white p-2 border rounded text-red-600 whitespace-pre-wrap">
-                        {output.stderr}
+                        {output.executionTime}
                       </pre>
                     </div>
                   )}

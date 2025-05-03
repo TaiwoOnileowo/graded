@@ -1,45 +1,49 @@
 FROM node:18-bullseye-slim
 
-# Install essential packages and languages for code execution
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    python3 \
-    python3-pip \
-    openjdk-11-jdk \
-    gcc \
-    g++ \
-    && rm -rf /var/lib/apt/lists/*
+ 
+   # Update package lists
+   RUN apt-get update
 
-# Set up a non-root user for better security
-RUN groupadd -r coderunner && useradd -m -r -g coderunner coderunner
+   # Install essential packages and languages for code execution
+   RUN apt-get install -y --fix-missing \
+       build-essential \
+       python3 \
+       python3-pip \
+       openjdk-11-jdk \
+       gcc \
+       g++ \
+       && rm -rf /var/lib/apt/lists/*
 
-# Create working directory
-WORKDIR /app
+   # Set up a non-root user for better security
+   RUN groupadd -r coderunner && useradd -m -r -g coderunner coderunner
 
-# Create directories for code execution
-RUN mkdir -p /app/submissions && chown -R coderunner:coderunner /app/submissions
+   # Create working directory
+   WORKDIR /app
 
-# Copy necessary files
-COPY --chown=coderunner:coderunner ./lib/executor.ts /app/lib/executor.ts
-COPY --chown=coderunner:coderunner ./package.json /app/package.json
-COPY --chown=coderunner:coderunner ./tsconfig.json /app/tsconfig.json
-COPY --chown=coderunner:coderunner ./prisma/schema.prisma /app/prisma/schema.prisma
+   # Create directories for code execution
+   RUN mkdir -p /app/submissions && chown -R coderunner:coderunner /app/submissions
 
-# Install dependencies and TypeScript
-RUN npm install --only=production --ignore-scripts && \
-    npm install -D typescript
+   # Copy necessary files
+   COPY --chown=coderunner:coderunner ./lib/executor.js /app/lib/executor.js
+   COPY --chown=coderunner:coderunner ./package.json /app/package.json
+   COPY --chown=coderunner:coderunner ./tsconfig.json /app/tsconfig.json
+   COPY --chown=coderunner:coderunner ./prisma/schema.prisma /app/prisma/schema.prisma
 
-# Generate Prisma client
-RUN npx prisma generate --no-engine
+   # Install dependencies and TypeScript
+   RUN npm install --only=production --ignore-scripts && \
+       npm install -D typescript
 
-# Compile TypeScript to JavaScript
-RUN npx tsc
+   # Generate Prisma client
+   RUN npx prisma generate --no-engine
 
-# Switch to non-root user
-USER coderunner
+   # Compile TypeScript to JavaScript
+   RUN npx tsc
 
-# Expose port
-EXPOSE 3001
+   # Switch to non-root user
+   USER coderunner
 
-# Start with the compiled JavaScript file
-CMD ["node", "/app/dist/lib/executor.js"]
+   # Expose port
+   EXPOSE 3001
+
+   # Start with the compiled JavaScript file
+   CMD ["node", "/app/lib/executor.js"]

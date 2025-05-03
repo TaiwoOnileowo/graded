@@ -10,7 +10,7 @@ export default async function HomePage() {
   const isStudent = role === "STUDENT";
   let enrolledCourses: IEnrolledCourse[] | undefined = [];
   if (isStudent) {
-    enrolledCourses = await getEnrolledCourses(session?.user?.id!);
+    enrolledCourses = await getEnrolledCourses(session?.user?.student?.id!);
   }
   return (
     <>

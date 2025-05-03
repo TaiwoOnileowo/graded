@@ -8,8 +8,7 @@ const Page = async () => {
   const session = await auth();
   const role = session?.user?.role;
   const isStudent = role === "STUDENT";
-  const courses = await getCourses();
-  console.log(session, "Session");
+  const courses = await getCourses(session?.user?.student?.id!);
   return (
     <>
       {isStudent ? (

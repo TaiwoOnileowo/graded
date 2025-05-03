@@ -67,9 +67,9 @@ export async function POST(request: NextRequest) {
       language.toLowerCase(),
       submissionPath
     );
-
+    console.log(result, "result");
     // Clean up submission directory after execution
-    fs.rmSync(submissionPath, { recursive: true, force: true });
+    // fs.rmSync(submissionPath, { recursive: true, force: true });
 
     return NextResponse.json(result);
   } catch (error) {
