@@ -3,15 +3,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import axios from "axios";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Loader from "../icons/Loader";
+import Info from "../icons/Info";
+import Success from "../icons/Success";
+import Warn from "../icons/Warn";
+import { Button } from "../ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Tabs, TabsTrigger, TabsContent, TabsList } from "../ui/tabs";
 
 // Import Monaco Editor dynamically (client-side only)
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
@@ -137,27 +135,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialCode }) => {
   const renderDockerStatus = () => {
     if (dockerStatus.checking) {
       return (
-        <div className="flex items-center text-gray-500 text-sm">
-          <svg
-            className="animate-spin h-4 w-4 mr-2"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
+        <div className="flex items-center text-gray-500">
+         <Loader />
           Checking Docker status...
         </div>
       );
@@ -165,20 +144,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialCode }) => {
 
     if (!dockerStatus.docker?.running) {
       return (
-        <div className="bg-red-100 text-red-700 p-2 rounded flex items-center text-sm">
-          <svg
-            className="h-4 w-4 mr-2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
+        <div className="bg-red-100 text-red-700 p-2 rounded flex items-center">
+         <Info />
           Docker is not running. Please start Docker Desktop.
         </div>
       );
@@ -188,25 +155,13 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialCode }) => {
       return (
         <div className="flex items-center text-sm">
           <span className="bg-yellow-100 text-yellow-700 p-2 rounded flex items-center mr-2">
-            <svg
-              className="h-4 w-4 mr-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
+           <Warn />
             Executor container is not running
           </span>
           <Button
             onClick={startDockerContainer}
-            disabled={dockerStatus.starting}
-            className={`text-sm ${
+            // disabled={dockerStatus.starting}
+            className={`px-3 py-1 rounded text-white ${
               dockerStatus.starting
                 ? "bg-gray-500"
                 : "bg-blue-600 hover:bg-blue-700"
@@ -219,20 +174,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialCode }) => {
     }
 
     return (
-      <div className="bg-green-100 text-green-700 p-2 rounded flex items-center text-sm">
-        <svg
-          className="h-4 w-4 mr-2"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M5 13l4 4L19 7"
-          />
-        </svg>
+      <div className="bg-green-100 text-green-700 p-2 rounded flex items-center">
+        <Success />
         Code execution service is running
       </div>
     );
