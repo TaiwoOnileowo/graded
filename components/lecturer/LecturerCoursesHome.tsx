@@ -1,3 +1,5 @@
+"use client";
+
 import {
   BookOpen,
   Edit,
@@ -8,6 +10,7 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
+import { useState, useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,8 +31,18 @@ import { Input } from "@/components/ui/input";
 import { ICourse } from "@/types";
 
 export default function CoursesPage({ courses }: { courses: ICourse[] }) {
-  const activeCourses = courses.filter((course) => course.isPublished);
-  const draftCourses = courses.filter((course) => !course.isPublished);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const activeCourses = useMemo(
+    () =>
+      courses.filter(
+        (course) =>
+          course.isPublished &&
+          (course.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            course.code.toLowerCase().includes(searchQuery.toLowerCase()))
+      ),
+    [courses, searchQuery]
+  );
 
   return (
     <div className="space-y-6 px-4 md:px-8 lg:px-12 w-full mx-auto">
@@ -55,14 +68,19 @@ export default function CoursesPage({ courses }: { courses: ICourse[] }) {
             type="search"
             placeholder="Search courses..."
             className="w-full bg-background pl-8"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
       </div>
 
-      {activeCourses.length === 0 && (
-        <div className="grid space-y-4 my-10 justify-center">
-          <h2 className="text-2xl text-center">
-            Oh sorry, You don't have any course yet
+      {activeCourses.length === 0 ? (
+        <div className="grid space-y-4 my-10 justify-center text-center">
+          <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-full bg-blue-200 shadow">
+            <BookOpen className="h-12 w-12 text-blue-600" />
+          </div>
+          <h2 className="text-2xl">
+            No matching courses found.
           </h2>
           <Button className="bg-blue-600 hover:bg-blue-700" asChild>
             <Link href="/courses/new">
@@ -71,9 +89,8 @@ export default function CoursesPage({ courses }: { courses: ICourse[] }) {
             </Link>
           </Button>
         </div>
-      )}
-
-      {activeCourses.length !== 0 && (
+     
+      ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {activeCourses.map((course) => (
             <CourseCard key={course.id} course={course} />
