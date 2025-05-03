@@ -237,3 +237,34 @@ export const enrollStudent = async (courseId: string, studentId: string) => {
     throw new Error("Error enrolling student");
   }
 };
+
+export const getEnrolledStudents = async (courseId: string) => { 
+  try {
+    const students = await prisma.enrollment.findMany({
+      where: {
+        courseId: courseId,
+        status: "ENROLLED",
+      },
+      include: {
+        student: {
+          select: {
+            user: {
+              select: {
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    return students.map((student) => ({
+      id: student.studentId,
+      name: student.student.user.name,
+      email: student.student.user.email,
+    }));
+  } catch (error) {
+    console.log(error, "Error");
+    throw new Error("Error fetching enrolled students");
+  }
+}
