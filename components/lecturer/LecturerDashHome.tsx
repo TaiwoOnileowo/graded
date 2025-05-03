@@ -29,17 +29,17 @@ interface Course {
 }
 
 
-export default function LecturerDashboard({ courses }: { courses: Course[] }) {
+export default function LecturerDashboard({ courses, name, title }: { courses: Course[]; name: string; title: string; }) {
   const recentCourses = courses.slice(0, 4); // Only 4 most recent
   
   return (
-      <div className="w-full px-4 md:px-6 lg:px-8 space-y-6"> 
+      <div className="w-full px-4 md:px-6 lg:px-8 space-y-6 py-4"> 
    
         <div className="flex flex-col w-full justify-between gap-4 md:flex-row md:items-center">
           <div>
             <h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>
             <p className="text-muted-foreground">
-              Welcome back, Dr. Smith. Here's an overview of your teaching
+            Welcome back, {title} {name} Here's an overview of your teaching
               activities.
             </p>
           </div>

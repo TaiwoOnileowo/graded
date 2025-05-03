@@ -20,7 +20,7 @@ export default async function HomePage() {
       {isStudent ? (
         <DashHome enrolledCourses={enrolledCourses} />
       ) : (
-        <LecturerDashboard courses={lecturerCourses}/>
+          <LecturerDashboard courses={lecturerCourses} name={session?.user?.name} title={session?.user.lecturer?.title} />
       )}
     </>
   );
