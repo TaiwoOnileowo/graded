@@ -27,7 +27,8 @@ const ManageStudents = async ({ courseId }: { courseId: string }) => {
             </p>
           </div>
         ) : (
-          <div className="grid gap-3">
+            <div className="grid gap-3">
+                <h2 className="text-md">Enrolled students</h2>
             {enrolledStudents.map((student: any) => (
               <div
                 key={student.id}
