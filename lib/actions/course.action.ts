@@ -79,6 +79,7 @@ export const getCourses = async (studentId?: string) => {
     throw new Error("Error fetching courses");
   }
 };
+
 export const getLecuterCourses = async (lecturerId?: string) => {
   try {
     const courses = await prisma.course.findMany({

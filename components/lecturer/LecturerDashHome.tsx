@@ -31,7 +31,11 @@ interface Course {
 
 
 export default async function LecturerDashboard({ courses, name, title, userId }: { courses: Course[]; name: string; title: string; userId: string; }) {
-  const recentCourses = courses.slice(0, 4); // Only 4 most recent
+  const recentCourses = courses
+    .slice()
+    .reverse()
+    .slice(0, 4);
+   // Only 4 most recent
   const lecturerStudents = await getEnrolledStudentsByLecturer(userId)
   return (
       <div className="w-full px-4 md:px-6 lg:px-8 space-y-6 py-4"> 
