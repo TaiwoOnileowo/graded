@@ -135,3 +135,24 @@ export const getUserByEmail = async (email: string) => {
     throw new Error(error.message);
   }
 };
+
+export const getUserByID = async (id: string) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        student: true,
+        lecturer: true,
+      },
+    });
+
+    if (user) {
+      return user;
+    }
+    return null;
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};

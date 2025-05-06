@@ -1,5 +1,6 @@
 export interface ILecturer {
   id?: string;
+  email?: string;
   name: string;
   title: string;
   department: string;
