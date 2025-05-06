@@ -1,6 +1,7 @@
-const page = () => {
+const page = ({ params } : any) => {
+    const { id } = params; 
   return (
-    <div>page</div>
+    <div>{id}</div>
   )
 }
 
