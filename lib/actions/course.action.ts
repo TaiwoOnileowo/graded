@@ -92,6 +92,8 @@ export const getLecuterCourses = async (lecturerId?: string) => {
         code: true,
         description: true,
         isPublished: true,
+        createdAt: true,
+        updatedAt: true,
         lecturer: {
           select: {
             user: {
@@ -128,6 +130,8 @@ export const getLecuterCourses = async (lecturerId?: string) => {
         description: course.description,
         isPublished: course.isPublished,
         lecturer: course.lecturer.user.name,
+        createdAt: course.createdAt,
+        updatedAt: course.updatedAt,
         assignments: course.assignments.length,
       };
     });
