@@ -131,6 +131,7 @@ export const getLecuterCourses = async (lecturerId?: string) => {
         isPublished: course.isPublished,
         lecturer: course.lecturer.user.name,
         createdAt: course.createdAt,
+        students: course.enrollments.length,
         updatedAt: course.updatedAt,
         assignments: course.assignments.length,
       };
