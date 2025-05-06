@@ -6,7 +6,7 @@ const Loading = () => {
         {/* Dashboard header */}
         <div className="h-10 bg-gray-200 rounded w-1/4" />
   
-        {/* Grid of placeholder cards */}
+        {/* Grid of placeholder cards */} 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, index) => (
             <div
