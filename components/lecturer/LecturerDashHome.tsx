@@ -27,6 +27,8 @@ interface Course {
   isPublished: boolean;
   lecturer: string;
   assignments: number;
+  updatedAt: Date;
+  createdAt: Date;
 }
 
 
