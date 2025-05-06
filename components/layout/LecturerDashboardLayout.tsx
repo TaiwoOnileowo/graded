@@ -134,7 +134,7 @@ export default function LecturerDashboardLayout({
                   <span className="text-sm font-medium text-blue-600">JS</span>
                 </div>
                 {lecturerDetails && (
-                  <div>
+                  <Link href={`/profile/${lecturerDetails.id}`}>
                     <p className="text-sm font-medium">
                       <span className="capitalize">{lecturerDetails.title}</span>{" "}
                       {lecturerDetails.name}
@@ -142,7 +142,7 @@ export default function LecturerDashboardLayout({
                     <p className="text-xs text-muted-foreground">
                       {lecturerDetails.department}
                     </p>
-                  </div>
+                  </Link>
                 )}
               </div>
               <Button variant="ghost" size="icon" onClick={handleLogout}>
