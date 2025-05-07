@@ -263,10 +263,10 @@ const ProfileCard = ({ personDetails }: { personDetails: ProfileDetails }) => {
         )} */}
         
         {/* Full Logout Button at Bottom */}
-        <div className="mt-6 pt-4 border-t border-gray-100">
+        <div className="mt-4 border-t border-gray-100">
           <button
             onClick={handleLogout}
-            className="cusor-pointer w-full py-2 px-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+            className="cursor-pointer w-full py-2 px-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
           >
             <LogOut className="h-4 w-4" />
             <span>Logout</span>
