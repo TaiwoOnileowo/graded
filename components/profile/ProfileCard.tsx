@@ -8,16 +8,18 @@ interface ProfileDetails {
 }
 const ProfileCard = ({ personDetails} : { personDetails: ProfileDetails }) => {
   return (
-    <div className="w-full md:min-w-2xl rounded-2xl shadow-lg bg-white overflow-hidden mx-auto">
-      <div className="grid space-y-4">
-        <Avatar className="w-32 h-32 mx-auto">
+    <div className="w-full md:max-w-[25rem] h-auto text-center rounded-2xl shadow-lg bg-white overflow-hidden mx-auto">
+      <div className="grid space-y-3 p-4 justify-center items-center">
+        <Avatar className="w-40 h-40 mx-auto">
           <AvatarImage src={personDetails.image} alt={personDetails.name} />
-          <AvatarFallback className="text-lg font-bold">
+          <AvatarFallback className="text-8xl font-bold">
             {personDetails.name?.charAt(0).toUpperCase() || "U"}
           </AvatarFallback>
         </Avatar>
-        <h2 className="text-2xl">{personDetails.name}</h2>
-        <span className="text-sm">{personDetails.email}</span>
+        <div>
+          <h2 className="text-2xl font-bold">{personDetails.name}</h2>
+          <span className="text-sm">{personDetails.email}</span>
+        </div>
       </div>
     </div>
   )
