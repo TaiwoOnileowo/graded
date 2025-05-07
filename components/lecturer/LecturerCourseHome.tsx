@@ -2,7 +2,6 @@ import {
   ArrowLeft,
   BookOpen,
   Calendar,
-  CogIcon,
   Edit,
   FileText,
   MoreHorizontal,
