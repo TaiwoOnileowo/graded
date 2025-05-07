@@ -4,20 +4,6 @@ import { getUserDetails } from "@/lib/actions/user.action";
 
 const page = async ({ params } : any) => {
     const { id } = params; 
-    // Get session
-    const session = await auth()
-
-    // Detect role
-    // const role = session?.user?.role;
-    // const isStudent = role === "STUDENT";
-
-    // Gettoing the profile data
-    // let profilePerson;
-    // if (isStudent) {
-    //     profilePerson = session?.user;
-    // } else {
-    //     profilePerson = session?.user;
-    // }
 
     const profileData = await getUserDetails(id);
 

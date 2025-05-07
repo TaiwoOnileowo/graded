@@ -1,17 +1,45 @@
 "use client"
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { CalendarDays, Mail, MapPin, Briefcase, Github, Twitter, Linkedin } from "lucide-react";
+import { 
+  CalendarDays, 
+  Mail, 
+  MapPin, 
+  Briefcase, 
+  Github, 
+  Twitter, 
+  Linkedin, 
+  GraduationCap, 
+  Hash,
+  BookOpen,
+  Building2
+} from "lucide-react";
 
+// Updated interface to match the getUserDetails response
 interface ProfileDetails {
+  id: string;
   name: string;
   email: string;
-  role: string;
-  matricNumber?: string;
-  createdAt?: Date;
+  role: "STUDENT" | "LECTURER" | "ADMIN";
+  createdAt: Date;
+  updatedAt: Date;
   image?: string;
   location?: string;
-  bio?: string;
+  // Student-specific fields
+  studentDetails?: {
+    id: string;
+    level: number;
+    major: string;
+    matricNumber: string;
+  };
+  // Lecturer-specific fields
+  lecturerDetails?: {
+    id: string;
+    bio?: string;
+    department: string;
+    title?: string;
+  };
+  // Optional social links
   socialLinks?: {
     github?: string;
     twitter?: string;
@@ -54,6 +82,20 @@ const ProfileCard = ({ personDetails }: { personDetails: ProfileDetails }) => {
     return name.charAt(0).toUpperCase();
   };
 
+  // Get role badge color
+  const getRoleBadgeColor = (role: string) => {
+    switch (role) {
+      case "STUDENT":
+        return "bg-blue-100 text-blue-800";
+      case "LECTURER":
+        return "bg-green-100 text-green-800";
+      case "ADMIN":
+        return "bg-purple-100 text-purple-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
   return (
     <div 
       className="w-full md:max-w-md h-auto rounded-2xl shadow-xl bg-white overflow-hidden mx-auto transition-all duration-300 hover:shadow-2xl"
@@ -90,15 +132,34 @@ const ProfileCard = ({ personDetails }: { personDetails: ProfileDetails }) => {
         {/* Profile Details */}
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold tracking-tight mb-1">{personDetails.name}</h2>
-          {personDetails.role && (
-            <p className="text-gray-600 font-medium mb-2 capitalize">{personDetails.role}</p>
+          
+          {/* Role Badge */}
+          <div className="flex justify-center mb-3">
+            <span className={`px-3 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(personDetails.role)}`}>
+              {personDetails.role}
+            </span>
+          </div>
+          
+          {/* Role-specific subtitle */}
+          {personDetails.role === "STUDENT" && personDetails.studentDetails && (
+            <p className="text-gray-600 font-medium mb-1">
+              {personDetails.studentDetails.major} Student
+            </p>
           )}
-          {personDetails.bio && (
-            <p className="text-gray-500 text-sm mt-3 px-4">{personDetails.matricNumber}</p>
+          
+          {personDetails.role === "LECTURER" && personDetails.lecturerDetails && (
+            <p className="text-gray-600 font-medium mb-1">
+              {personDetails.lecturerDetails.title || "Lecturer"} • {personDetails.lecturerDetails.department}
+            </p>
+          )}
+          
+          {/* Bio for lecturer */}
+          {personDetails.role === "LECTURER" && personDetails.lecturerDetails?.bio && (
+            <p className="text-gray-500 text-sm mt-3 px-4">{personDetails.lecturerDetails.bio}</p>
           )}
         </div>
         
-        {/* Info Items */}
+        {/* Info Items - Common Fields */}
         <div className="space-y-3 text-sm">
           <div className="flex items-center text-gray-600">
             <Mail className="h-4 w-4 mr-2" />
@@ -118,6 +179,39 @@ const ProfileCard = ({ personDetails }: { personDetails: ProfileDetails }) => {
               <span>Joined {formattedDate}</span>
             </div>
           )}
+          
+          {/* Role-specific fields */}
+          {personDetails.role === "STUDENT" && personDetails.studentDetails && (
+            <>
+              <div className="flex items-center text-gray-600">
+                <Hash className="h-4 w-4 mr-2" />
+                <span>Matric Number: {personDetails.studentDetails.matricNumber}</span>
+              </div>
+              <div className="flex items-center text-gray-600">
+                <GraduationCap className="h-4 w-4 mr-2" />
+                <span>Level {personDetails.studentDetails.level}</span>
+              </div>
+              <div className="flex items-center text-gray-600">
+                <BookOpen className="h-4 w-4 mr-2" />
+                <span>Major: {personDetails.studentDetails.major}</span>
+              </div>
+            </>
+          )}
+          
+          {personDetails.role === "LECTURER" && personDetails.lecturerDetails && (
+            <>
+              <div className="flex items-center text-gray-600">
+                <Building2 className="h-4 w-4 mr-2" />
+                <span>Department: {personDetails.lecturerDetails.department}</span>
+              </div>
+              {personDetails.lecturerDetails.title && (
+                <div className="flex items-center text-gray-600">
+                  <Briefcase className="h-4 w-4 mr-2" />
+                  <span>Title: {personDetails.lecturerDetails.title}</span>
+                </div>
+              )}
+            </>
+          )}
         </div>
         
         {/* Social Links */}
@@ -127,6 +221,8 @@ const ProfileCard = ({ personDetails }: { personDetails: ProfileDetails }) => {
               <a 
                 href={personDetails.socialLinks.github}
                 className="text-gray-500 hover:text-gray-800 transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="GitHub Profile"
               >
                 <Github className="h-5 w-5" />
@@ -136,6 +232,8 @@ const ProfileCard = ({ personDetails }: { personDetails: ProfileDetails }) => {
               <a 
                 href={personDetails.socialLinks.twitter}
                 className="text-gray-500 hover:text-blue-500 transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="Twitter Profile"
               >
                 <Twitter className="h-5 w-5" />
@@ -145,6 +243,8 @@ const ProfileCard = ({ personDetails }: { personDetails: ProfileDetails }) => {
               <a 
                 href={personDetails.socialLinks.linkedin}
                 className="text-gray-500 hover:text-blue-700 transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="LinkedIn Profile"
               >
                 <Linkedin className="h-5 w-5" />
