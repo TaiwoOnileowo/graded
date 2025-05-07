@@ -136,16 +136,12 @@ export const getUserByEmail = async (email: string) => {
   }
 };
 
-export const getUserByID = async (id: string) => {
+export const getUserDetails = async (id: string) => {
   try {
     const user = await prisma.user.findUnique({
       where: {
         id,
-      },
-      include: {
-        student: true,
-        lecturer: true,
-      },
+      }
     });
 
     if (user) {
@@ -155,4 +151,5 @@ export const getUserByID = async (id: string) => {
   } catch (error: any) {
     throw new Error(error.message);
   }
-};
+
+}
