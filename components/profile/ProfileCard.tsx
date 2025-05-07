@@ -148,7 +148,7 @@ const ProfileCard = ({ personDetails }: { personDetails: ProfileDetails }) => {
           )}
           
           {personDetails.role === "LECTURER" && personDetails.lecturerDetails && (
-            <p className="text-gray-600 font-medium mb-1">
+            <p className="text-gray-600 font-medium mb-1 capitalize">
               {personDetails.lecturerDetails.title || "Lecturer"} • {personDetails.lecturerDetails.department}
             </p>
           )}
@@ -207,7 +207,7 @@ const ProfileCard = ({ personDetails }: { personDetails: ProfileDetails }) => {
               {personDetails.lecturerDetails.title && (
                 <div className="flex items-center text-gray-600">
                   <Briefcase className="h-4 w-4 mr-2" />
-                  <span>Title: {personDetails.lecturerDetails.title}</span>
+                  <span className="capitalize">Title: {personDetails.lecturerDetails.title}</span>
                 </div>
               )}
             </>
