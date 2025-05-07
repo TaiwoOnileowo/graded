@@ -14,11 +14,11 @@ const Page = async () => {
     <>
       {isStudent ? (
         <CoursesHome
-          courses={studentCourses}
+          courses={studentCourses.sort().reverse()}
           studentId={session?.user?.student?.id!}
         />
       ) : (
-        <LecturerCourseHome courses={lecturerCourse} />
+        <LecturerCourseHome courses={lecturerCourse.sort().reverse()} />
       )}
     </>
   );
