@@ -7,11 +7,13 @@ export async function middleware(req: NextRequest) {
 
   // Define unprotected routes
   const unProtectedPaths = [
+    /^\/$/, // home page
     /^\/sign-up/,
     /^\/sign-in/,
     /^\/reset-password/,
     /^\/forgot-password/,
   ];
+  
 
   const isUnprotected = unProtectedPaths.some((path) => path.test(pathname));
 
