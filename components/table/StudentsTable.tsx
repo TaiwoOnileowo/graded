@@ -23,24 +23,24 @@ const StudentsTable = ({ filteredStudents }: { filteredStudents: Student }) => {
       </TableHeader>
       <TableBody>
         {filteredStudents.length > 0 ? (
-          filteredStudents.map((student) => (
-            <TableRow key={student.studentId}>
+          filteredStudents.map((student: any) => (
+            <TableRow key={student.studentId || student.id}>
               <TableCell>
                 <div className="flex items-center gap-3">
                   <Avatar className="w-10 h-10">
                     <AvatarImage
-                      src={student.user?.image}
-                      alt={student.user?.name}
+                      src={student.user?.image || student.image}
+                      alt={student.user?.name || student.name}
                     />
                     <AvatarFallback>
-                      {student.user?.name?.charAt(0).toUpperCase() || "U"}
+                      {student.user?.name?.charAt(0).toUpperCase() || student.name?.charAt(0).toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="font-medium">{student.user?.name}</span>
+                  <span className="font-medium">{student.user?.name || student?.name}</span>
                 </div>
               </TableCell>
-              <TableCell>{student.matricNumber}</TableCell>
-              <TableCell>{student.level}</TableCell>
+              <TableCell>{student.matricNumber || 'nill'}</TableCell>
+              <TableCell>{student.level || 'nill'}</TableCell>
             </TableRow>
           ))
         ) : (

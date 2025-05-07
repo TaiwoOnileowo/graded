@@ -3,9 +3,11 @@ import { Button } from "../ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import StudentsTable from "../table/StudentsTable";
 
 const ManageStudents = async ({ courseId }: { courseId: string }) => {
   const enrolledStudents = await getEnrolledStudents(courseId);
+  console.log(enrolledStudents)
 
   return (
     <div className="space-y-6 px-4 md:px-8 min-w-full mx-auto">
@@ -27,30 +29,7 @@ const ManageStudents = async ({ courseId }: { courseId: string }) => {
             </p>
           </div>
         ) : (
-            <div className="grid gap-3">
-                <h2 className="text-md">Enrolled students</h2>
-            {enrolledStudents.map((student: any) => (
-              <div
-                key={student.id}
-                className="flex items-center justify-between p-4 border rounded-md"
-              >
-                <div className="flex items-center gap-3">
-                  <Avatar>
-                    <AvatarImage src={student.image} alt={student.name} />
-                    <AvatarFallback>
-                      {student.name?.charAt(0).toUpperCase() || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium">{student.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {student.email}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <StudentsTable filteredStudents={enrolledStudents}/>
         )}
       </div>
     </div>
