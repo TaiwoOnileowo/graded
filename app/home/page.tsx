@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export default function HomePage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center px-4 text-center">
       <div className="max-w-xl space-y-6">
-        <h1 className="text-4xl font-bold sm:text-5xl">Welcome to <span className="font-extrabold">GRADED</span></h1>
+        <Image src="/logo.svg" alt="Logo" width={400} height={60} className="mx-auto"/>
         <p className="text-muted-foreground text-base sm:text-lg">
           A simple platform for managing courses, assignments, and academic progress.
         </p>
