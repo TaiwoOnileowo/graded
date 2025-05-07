@@ -29,9 +29,11 @@ const Header = async () => {
               </li>
             </ul>
           </nav>
-          <div className="bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-white text-sm font-medium cursor-pointer">
-            {session?.user?.name[0]}
-          </div>
+          <Link href={`/profile/${session?.user?.id}`}>
+            <div className="bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-white text-sm font-medium cursor-pointer">
+              {session?.user?.name[0]}
+            </div>
+          </Link>
         </div>
       </div>
     </header>
