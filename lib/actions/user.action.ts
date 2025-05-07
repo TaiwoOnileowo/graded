@@ -141,6 +141,14 @@ export const getUserDetails = async (id: string) => {
     const user = await prisma.user.findUnique({
       where: {
         id,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+        updatedAt: true,
+        role: true,
       }
     });
 
@@ -151,5 +159,4 @@ export const getUserDetails = async (id: string) => {
   } catch (error: any) {
     throw new Error(error.message);
   }
-
 }
