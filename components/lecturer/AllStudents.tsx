@@ -1,12 +1,32 @@
 "use client"
+
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import StudentsTable from "../table/StudentsTable"
 
-const AllStudents = ({ students }: any) => {
+export type Student = {
+  studentId: string
+  matricNumber: string
+  level: string
+  user: {
+    name: string
+    image?: string
+  }
+}
+
+const AllStudents = ({ students }: { students: Student[] }) => {
   const [searchQuery, setSearchQuery] = useState("")
 
-  const filteredStudents = students?.filter((student: any) =>
+  const filteredStudents = students.filter((student) =>
     student?.user?.name?.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
@@ -28,32 +48,48 @@ const AllStudents = ({ students }: any) => {
         />
       </div>
 
-      <div className="flex flex-col divide-y border rounded-md overflow-hidden bg-white">
-        {filteredStudents?.length > 0 ? (
-          filteredStudents.map((student: any) => (
-            <div
-              key={student.studentId}
-              className="flex items-center gap-4 p-4 hover:bg-muted transition-colors"
-            >
-              <Avatar className="w-12 h-12">
-                <AvatarImage src={student.user?.image} alt={student.user?.name} />
-                <AvatarFallback className="text-lg font-bold">
-                  {student.user?.name?.charAt(0).toUpperCase() || "U"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="text-left">
-                <h3 className="text-base font-semibold">
-                  {student.user?.name || "Unnamed Student"}
-                </h3>
-                <p className="text-sm text-muted-foreground">Matric No: {student.matricNumber}</p>
-                <p className="text-sm text-muted-foreground">Level: {student.level}</p>
-              </div>
-            </div>
-          ))
-        ) : (
-          <p className="p-4 text-muted-foreground">No students enrolled yet.</p>
-        )}
-      </div>
+      {/* <div className="rounded-md border overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Matric Number</TableHead>
+              <TableHead>Level</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredStudents.length > 0 ? (
+              filteredStudents.map((student) => (
+                <TableRow key={student.studentId}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="w-10 h-10">
+                        <AvatarImage
+                          src={student.user?.image}
+                          alt={student.user?.name}
+                        />
+                        <AvatarFallback>
+                          {student.user?.name?.charAt(0).toUpperCase() || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="font-medium">{student.user?.name}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>{student.matricNumber}</TableCell>
+                  <TableCell>{student.level}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={3} className="text-center text-muted-foreground py-6">
+                  No students found.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div> */}
+      <StudentsTable filteredStudents={filteredStudents}/>
     </div>
   )
 }
