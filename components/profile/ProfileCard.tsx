@@ -12,8 +12,11 @@ import {
   GraduationCap, 
   Hash,
   BookOpen,
-  Building2
+  Building2,
+  LogOut
 } from "lucide-react";
+import { Button } from "../ui/button";
+import { signOut } from "@/auth";
 
 // Updated interface to match the getUserDetails response
 interface ProfileDetails {
@@ -96,20 +99,27 @@ const ProfileCard = ({ personDetails }: { personDetails: ProfileDetails }) => {
     }
   };
 
+  // Handle logout (placeholder function)
+  const handleLogout = async () => {
+    await signOut();
+  };
+
   return (
     <div 
-      className="w-full md:max-w-md h-auto rounded-2xl shadow-xl bg-white overflow-hidden mx-auto transition-all duration-300 hover:shadow-2xl"
+      className="w-full md:max-w-md rounded-2xl shadow-xl bg-white overflow-hidden mx-auto transition-all duration-300 hover:shadow-2xl"
       style={{ transform: isHovered ? "translateY(-8px)" : "translateY(0)" }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Header with gradient background */}
       <div 
-        className="h-32 w-full relative"
+        className="h-28 w-full relative"
         style={{ 
           background: generateGradient(personDetails.name || "User"),
         }}
-      />
+      >
+        
+      </div>
       
       {/* Profile Content */}
       <div className="px-6 py-5 pb-8">
@@ -252,6 +262,17 @@ const ProfileCard = ({ personDetails }: { personDetails: ProfileDetails }) => {
             )}
           </div>
         )}
+        
+        {/* Full Logout Button at Bottom */}
+        <div className="mt-6 pt-4 border-t border-gray-100">
+          <button
+            onClick={handleLogout}
+            className="cusor-pointer w-full py-2 px-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+          >
+            <LogOut className="h-4 w-4" />
+            <span>Logout</span>
+          </button>
+        </div>
       </div>
     </div>
   );
