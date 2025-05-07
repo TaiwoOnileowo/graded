@@ -142,21 +142,53 @@ export const getUserDetails = async (id: string) => {
       where: {
         id,
       },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        createdAt: true,
-        updatedAt: true,
-        role: true,
+      include: {
+        student: true,
+        lecturer: true,
       }
     });
 
-    if (user) {
-      return user;
+    if (!user) {
+      return null;
     }
-    return null;
+
+    // Format the response based on role
+    const userDetails = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      role: user.role,
+    };
+
+    // Add role-specific details
+    if (user.role === 'STUDENT' && user.student) {
+      return {
+        ...userDetails,
+        studentDetails: {
+          id: user.student.id,
+          level: user.student.level,
+          major: user.student.major,
+          matricNumber: user.student.matricNumber,
+        }
+      };
+    } else if (user.role === 'LECTURER' && user.lecturer) {
+      return {
+        ...userDetails,
+        lecturerDetails: {
+          id: user.lecturer.id,
+          bio: user.lecturer.bio,
+          department: user.lecturer.department,
+          title: user.lecturer.title,
+        }
+      };
+    }
+
+    // If role is ADMIN or student/lecturer data is missing
+    return userDetails;
+    
   } catch (error: any) {
     throw new Error(error.message);
   }
-}
+};
