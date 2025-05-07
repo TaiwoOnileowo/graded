@@ -108,8 +108,8 @@ export default function CoursesHome({
           ) : (
             <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {searchResults.map((course) => (
-                <Link href={`/courses/${course.id}`} key={course.id}>
                     <Card
+                      key={course.id}
                     className="cursor-pointer h-full overflow-hidden transition-all hover:border-blue-600 hover:shadow-md"
                   >
                     <CardHeader className="pb-2">
@@ -151,7 +151,6 @@ export default function CoursesHome({
                       )}
                     </CardFooter>
                       </Card>
-                  </Link>
               ))}
             </div>
           )}
