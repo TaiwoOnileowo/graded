@@ -1,17 +1,25 @@
 import { auth } from "@/auth";
 import LecturerCourseHome from "@/components/lecturer/LecturerCoursesHome";
 import CoursesHome from "@/components/student/CoursesHome";
-import { getCourses } from "@/lib/actions/course.action";
+import { getCourses, getLecuterCourses } from "@/lib/actions/course.action";
 
 export async function generateStaticParams() {}
 const Page = async () => {
   const session = await auth();
   const role = session?.user?.role;
   const isStudent = role === "STUDENT";
-  const courses = await getCourses();
+  const studentCourses = await getCourses(session?.user?.student?.id!);
+  const lecturerCourse = await getLecuterCourses(session?.user?.lecturer?.id)
   return (
     <>
-      {isStudent ? <CoursesHome /> : <LecturerCourseHome courses={courses} />}
+      {isStudent ? (
+        <CoursesHome
+          courses={studentCourses.sort().reverse()}
+          studentId={session?.user?.student?.id!}
+        />
+      ) : (
+        <LecturerCourseHome courses={lecturerCourse.sort().reverse()} />
+      )}
     </>
   );
 };

@@ -6,6 +6,7 @@ import {
   FileText,
   MoreHorizontal,
   Plus,
+  UserCogIcon,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -117,7 +118,7 @@ export default function LecturerCoursePage({ course }: { course: any }) {
           <CardContent className="space-y-2">
             <Button variant="outline" className="w-full justify-start" asChild>
               <Link href={`/courses/${course.id}/students`}>
-                <Users className="mr-2 h-4 w-4" />
+                <UserCogIcon className="mr-2 h-4 w-4" />
                 Manage Students
               </Link>
             </Button>

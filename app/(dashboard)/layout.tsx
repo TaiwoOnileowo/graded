@@ -11,6 +11,8 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
   let lecturerDetails;
   if (!isStudent) {
     lecturerDetails = {
+      id: session?.user.id,
+      email: session?.user.email,
       name: session?.user.name || "Unknown",
       title: session?.user.lecturer?.title || "",
       department: session?.user.lecturer?.department || "",
