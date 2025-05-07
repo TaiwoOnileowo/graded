@@ -1,13 +1,17 @@
-import { getEnrolledStudents } from "@/lib/actions/course.action";
+"use client"
 import { Button } from "../ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import StudentsTable from "../table/StudentsTable";
+import { useState } from "react";
+import { Input } from "../ui/input";
 
-const ManageStudents = async ({ courseId }: { courseId: string }) => {
-  const enrolledStudents = await getEnrolledStudents(courseId);
-  console.log(enrolledStudents)
+const ManageStudents =  ({ students, courseId }: { students: any; courseId: string; }) => {
+  const [searchQuery, setSearchQuery] = useState("")
+  
+  const filteredStudents = students.filter((student: any) =>
+    student?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   return (
     <div className="space-y-6 px-4 md:px-8 min-w-full mx-auto">
@@ -21,15 +25,23 @@ const ManageStudents = async ({ courseId }: { courseId: string }) => {
         <h2 className="text-2xl font-bold tracking-tight">Manage Students</h2>
       </div>
 
+      <Input
+          type="text"
+          placeholder="Search students..."
+          className="w-full md:w-64"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+
       <div>
-        {enrolledStudents.length === 0 ? (
+        {filteredStudents.length === 0 ? (
           <div className="flex items-center justify-center w-full">
             <p className="text-lg text-muted-foreground text-center">
               No students have enrolled in this course
             </p>
           </div>
         ) : (
-          <StudentsTable filteredStudents={enrolledStudents}/>
+          <StudentsTable filteredStudents={filteredStudents}/>
         )}
       </div>
     </div>
