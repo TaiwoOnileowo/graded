@@ -134,7 +134,7 @@ export default function LecturerDashboardLayout({
                   <span className="text-sm font-medium text-blue-600">JS</span>
                 </div>
                 {lecturerDetails && (
-                  <Link href={`/profile/${lecturerDetails.id}`}>
+                  <Link href={`/profile`}>
                     <p className="text-sm font-medium">
                       <span className="capitalize">{lecturerDetails.title}</span>{" "}
                       {lecturerDetails.name}
