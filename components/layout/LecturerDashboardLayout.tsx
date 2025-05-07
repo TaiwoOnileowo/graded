@@ -10,6 +10,7 @@ import {
   PlusCircle,
   Settings,
   Users,
+  Users2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -118,8 +119,8 @@ export default function LecturerDashboardLayout({
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
                       <Link href="/students" className={sideMenuClass("/students")}>
-                        <Users className="h-4 w-4" />
-                        <span>Manage Students</span>
+                        <Users2 className="h-4 w-4" />
+                        <span>My Students</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
