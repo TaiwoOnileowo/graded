@@ -15,8 +15,7 @@ import {
   Building2,
   LogOut
 } from "lucide-react";
-import { Button } from "../ui/button";
-import { signOut } from "@/auth";
+import { signOut } from "next-auth/react";
 
 // Updated interface to match the getUserDetails response
 interface ProfileDetails {
@@ -225,7 +224,7 @@ const ProfileCard = ({ personDetails }: { personDetails: ProfileDetails }) => {
         </div>
         
         {/* Social Links */}
-        {personDetails.socialLinks && (
+        {/* {personDetails.socialLinks && (
           <div className="mt-6 pt-4 border-t border-gray-100 flex justify-center space-x-4">
             {personDetails.socialLinks.github && (
               <a 
@@ -261,7 +260,7 @@ const ProfileCard = ({ personDetails }: { personDetails: ProfileDetails }) => {
               </a>
             )}
           </div>
-        )}
+        )} */}
         
         {/* Full Logout Button at Bottom */}
         <div className="mt-6 pt-4 border-t border-gray-100">
