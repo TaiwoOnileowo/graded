@@ -80,6 +80,27 @@ export const getCourses = async (studentId?: string) => {
   }
 };
 
+export const getCourseName = async (courseId: string) => {
+  try {
+    const course = await prisma.course.findUnique({
+      where: {
+        id: courseId,
+      },
+      select: {
+        name: true,
+        code: true
+      },
+    });
+    return {
+      name: course?.name,
+      code: course?.code,
+    };
+  } catch (error) {
+    console.log(error, "Error");
+    throw new Error("Error fetching course name");
+  }
+};
+
 export const getLecuterCourses = async (lecturerId?: string) => {
   try {
     const courses = await prisma.course.findMany({

@@ -6,7 +6,7 @@ import StudentsTable from "../table/StudentsTable";
 import { useState } from "react";
 import { Input } from "../ui/input";
 
-const ManageStudents =  ({ students, courseId }: { students: any; courseId: string; }) => {
+const ManageStudents = ({ students, courseId, courseName, courseCode }: { students: any; courseId: string; courseName: string; courseCode: string; }) => {
   const [searchQuery, setSearchQuery] = useState("")
   
   const filteredStudents = students.filter((student: any) =>
@@ -22,7 +22,7 @@ const ManageStudents =  ({ students, courseId }: { students: any; courseId: stri
             <span className="sr-only">Back</span>
           </Link>
         </Button>
-        <h2 className="text-2xl font-bold tracking-tight">Manage Students</h2>
+        <h2 className="text-2xl font-bold tracking-tight flex items-center gap-4">Manage Students for <span className="p-2 rounded-lg bg-gray-200 text-[0.9rem] font-normal">{courseName} - {courseCode}</span></h2>
       </div>
 
       <Input
