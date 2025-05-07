@@ -246,34 +246,47 @@ export const enrollStudent = async (courseId: string, studentId: string) => {
 
 export const getEnrolledStudents = async (courseId: string) => { 
   try {
-    const students = await prisma.enrollment.findMany({
-      where: {
-        courseId: courseId,
-        status: "ENROLLED",
-      },
-      include: {
-        student: {
-          select: {
-            user: {
-              select: {
-                name: true,
-                email: true,
+    const course = await prisma.course.findUnique({
+      where: { id: courseId },
+      select: {
+        id: true,
+        name: true,
+        enrollments: {
+          where: {
+            status: "ENROLLED",
+          },
+          include: {
+            student: {
+              include: {
+                user: true,
               },
             },
           },
         },
       },
     });
-    return students.map((student) => ({
-      id: student.studentId,
-      name: student.student.user.name,
-      email: student.student.user.email,
+
+    if (!course) {
+      throw new Error("Course not found");
+    }
+
+    const students = course.enrollments.map((enrollment) => ({
+      id: enrollment.student.id,
+      name: enrollment.student.user.name,
+      email: enrollment.student.user.email,
+      matricNumber: enrollment.student.matricNumber,
+      level: enrollment.student.level,
+      major: enrollment.student.major,
+      courseId: course.id,
+      courseName: course.name,
     }));
+
+    return students;
   } catch (error) {
     console.log(error, "Error");
     throw new Error("Error fetching enrolled students");
   }
-}
+};
 
 export const  getEnrolledStudentsByLecturer = async (userId: string) =>{
   const lecturer = await prisma.lecturer.findUnique({
