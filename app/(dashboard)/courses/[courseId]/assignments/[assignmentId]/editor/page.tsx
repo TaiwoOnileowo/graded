@@ -1,7 +1,6 @@
 import { auth } from "@/auth";
 import CodeEditor from "@/components/editor/CodeEditor";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getAssignmentDetails } from "@/lib/actions/assignment.action";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -9,24 +8,35 @@ import Link from "next/link";
 interface Assignment {
   id: string;
   title: string;
-  description?: string;
+  description?: string | null;
   marks: number;
-  deadline?: Date;
-  codeTemplate?: string;
-  hint?: string;
-  questionText?: string;
-  course: { id: string; name: string };
+  deadline: Date | null;
+  codeTemplate?: string | null;
+  hint?: string | null;
+  questionText?: string | null;
+  course: {
+    id: string;
+    name: string;
+    code: string;
+    description: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+    isPublished: boolean;
+    lecturerId: string;
+  };
   rubrics: Array<{
     id: string;
     title: string;
-    description?: string;
+    description?: string | null;
     maxPoints: number;
+    assignmentId: string;
   }>;
   testCases: Array<{
     id: string;
     input: string;
     expectedOutput: string;
-    description?: string;
+    description?: string | null;
+    assignmentId?: string;
   }>;
 }
 
@@ -50,11 +60,19 @@ export async function generateMetadata({ params }: { params: any }) {
 
   return {
     title: `${title} - ${course.name} Assignment | Course Management`,
-    description: `Complete your assignment: ${title} for the course ${course.name}. Total Marks: ${marks}. Deadline: ${new Date(deadline!).toLocaleString()}.`,
+    description: `Complete your assignment: ${title} for the course ${
+      course.name
+    }. Total Marks: ${marks}. Deadline: ${new Date(
+      deadline!
+    ).toLocaleString()}.`,
   };
 }
 
-const Page = async ({ params }: { params: Promise<{ assignmentId: string }> }) => {
+const Page = async ({
+  params,
+}: {
+  params: Promise<{ assignmentId: string }>;
+}) => {
   const session = await auth();
   const studentId = session?.user.student?.id;
   const { assignmentId } = await params;

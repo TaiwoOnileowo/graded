@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p3005",
-    "build": "next build",
+    "build": "next build ",
     "start": "next start",
     "db": "npx prisma studio",
     "postinstall": "prisma db pull&prisma generate --no-engine",

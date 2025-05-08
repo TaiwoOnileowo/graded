@@ -11,11 +11,12 @@ const Page = async ({ params }: { params: any }) => {
     return notFound();
   }
   return (
-    <LecturerSubmissionPage
-      submissionId={submissionId}
-      courseId={courseId}
-      assignmentId={assignmentId}
-    />
+    // <LecturerSubmissionPage
+    //   submissionId={submissionId}
+    //   courseId={courseId}
+    //   assignmentId={assignmentId}
+    // />
+    <></>
   );
 };
 export default Page;

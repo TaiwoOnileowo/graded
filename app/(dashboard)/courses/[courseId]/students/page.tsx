@@ -1,11 +1,18 @@
 import { auth } from "@/auth";
 import ManageStudents from "@/components/student/ManageStudents";
-import { getCourseName, getEnrolledStudents } from "@/lib/actions/course.action";
+import {
+  getCourseName,
+  getEnrolledStudents,
+} from "@/lib/actions/course.action";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 // SEO Metadata function
-export async function generateMetadata({ params }: { params: any }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: any;
+}): Promise<Metadata> {
   const { courseId: id } = await params;
   const enrolledStudents = await getEnrolledStudents(id);
   const { name, code } = await getCourseName(id);
@@ -35,7 +42,14 @@ const Page = async ({ params }: { params: any }) => {
     return notFound();
   }
 
-  return <ManageStudents students={enrolledStudents} courseId={id} courseName={name} courseCode={code} />;
+  return (
+    <ManageStudents
+      students={enrolledStudents}
+      courseId={id}
+      courseName={name!}
+      courseCode={code!}
+    />
+  );
 };
 
 export default Page;

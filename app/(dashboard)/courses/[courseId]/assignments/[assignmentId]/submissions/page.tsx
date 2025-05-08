@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { getCourseName } from "@/lib/actions/course.action";
 import { getAssignmentDetails } from "@/lib/actions/assignment.action";
 
-
 // SEO Metadata function
 export async function generateMetadata({ params }: { params: any }) {
   const { courseId, assignmentId } = await params;
@@ -21,19 +20,23 @@ export async function generateMetadata({ params }: { params: any }) {
 
   // Fetch course and assignment details
   const course = await getCourseName(courseId);
-  const assignment = await getAssignmentDetails(assignmentId, session?.user?.id as string);
+  const assignment = await getAssignmentDetails(
+    assignmentId,
+    session?.user?.id as string
+  );
 
-  if (!course || !assignment) {
+  if (!course || !assignment || !assignment?.data) {
     return {
       title: "Assignment or Course Not Found | Course Management",
-      description: "The requested course or assignment details are not available.",
+      description:
+        "The requested course or assignment details are not available.",
     };
   }
 
   // Set the page title and description dynamically based on course and assignment data
   return {
-    title: `${assignment?.title} Submissions - ${course.name} | Course Management`,
-    description: `View the submissions for ${assignment?.title} in the ${course.name} course. Manage and review student submissions here.`,
+    title: `${assignment?.data.title} Submissions - ${course.name} | Course Management`,
+    description: `View the submissions for ${assignment?.data.title} in the ${course.name} course. Manage and review student submissions here.`,
   };
 }
 
@@ -42,7 +45,7 @@ const Page = async ({ params }: { params: any }) => {
   const session = await auth();
   const role = session?.user?.role;
   const isStudent = role === "STUDENT";
-  
+
   if (isStudent) {
     return notFound();
   }

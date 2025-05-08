@@ -1,34 +1,34 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Input } from "@/components/ui/input"
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
-} from "@/components/ui/table"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import StudentsTable from "../table/StudentsTable"
+  TableRow,
+} from "@/components/ui/table";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import StudentsTable from "../table/StudentsTable";
 
 export type Student = {
-  studentId: string
-  matricNumber: string
-  level: string
+  studentId: string;
+  matricNumber: string;
+  level: string;
   user: {
-    name: string
-    image?: string
-  }
-}
+    name: string;
+    image?: string;
+  };
+};
 
 const AllStudents = ({ students }: { students: Student[] }) => {
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState("");
 
   const filteredStudents = students.filter((student) =>
     student?.user?.name?.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  );
 
   return (
     <div className="space-y-6 px-4 md:px-8 lg:px-12 w-full mx-auto">
@@ -89,9 +89,9 @@ const AllStudents = ({ students }: { students: Student[] }) => {
           </TableBody>
         </Table>
       </div> */}
-      <StudentsTable filteredStudents={filteredStudents}/>
+      <StudentsTable filteredStudents={filteredStudents as any} />
     </div>
-  )
-}
+  );
+};
 
-export default AllStudents
+export default AllStudents;

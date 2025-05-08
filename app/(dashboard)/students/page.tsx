@@ -16,9 +16,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const page = async () => {
   const session = await auth();
-  const lecturerStudents = await getEnrolledStudentsByLecturer(session?.user?.lecturer?.id!);
+  const lecturerStudents = await getEnrolledStudentsByLecturer(
+    session?.user?.lecturer?.id!
+  );
 
-  return <AllStudents students={lecturerStudents} />;
+  return <AllStudents students={lecturerStudents as any} />;
 };
 
 export default page;

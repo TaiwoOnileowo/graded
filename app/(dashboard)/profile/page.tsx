@@ -18,7 +18,7 @@ const page = async () => {
   const session = await auth();
   const profileData = await getUserDetails(session?.user?.id!);
 
-  return <ProfileCard personDetails={profileData} />;
+  return <ProfileCard personDetails={profileData as any} />;
 };
 
 export default page;

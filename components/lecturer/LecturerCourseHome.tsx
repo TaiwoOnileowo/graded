@@ -288,7 +288,7 @@ export default function LecturerCoursePage({ course }: { course: any }) {
                 </thead>
                 <tbody>
                   {course.studentList &&
-                    course.studentList.map((student) => (
+                    course.studentList.map((student: any) => (
                       <tr key={student.id} className="border-b">
                         <td className="px-4 py-3 text-sm">{student.name}</td>
                         <td className="px-4 py-3 text-sm">
