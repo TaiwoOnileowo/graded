@@ -1,13 +1,16 @@
 "use client";
-import type { ReactNode } from "react";
+import { ReactNode } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   BookOpen,
   GraduationCap,
   LayoutDashboard,
   LogOut,
+  PlusCircle,
   Settings,
   Users,
+  Users2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -37,9 +40,28 @@ export default function LecturerDashboardLayout({
   lecturerDetails: ILecturer | undefined;
   children: ReactNode;
 }) {
+  const pathname = usePathname();
+
+  const isActive = (path: string) => pathname === path;
+
+  const navLinkClass = (path: string) =>
+    `text-sm font-medium transition-colors ${
+      isActive(path)
+        ? "text-primary"
+        : "text-muted-foreground hover:text-primary"
+    }`;
+
+  const sideMenuClass = (path: string) =>
+    `flex items-center gap-2 rounded-md px-2.5 py-2 text-sm font-medium transition-colors ${
+      isActive(path)
+        ? "bg-muted text-primary"
+        : "hover:bg-muted hover:text-primary"
+    }`;
+
   const handleLogout = async () => {
     await signOut();
   };
+
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex h-screen overflow-hidden w-full">
@@ -56,7 +78,7 @@ export default function LecturerDashboardLayout({
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
-                      <Link href="/">
+                      <Link href="/" className={sideMenuClass("/")}>
                         <LayoutDashboard className="h-4 w-4" />
                         <span>Overview</span>
                       </Link>
@@ -72,7 +94,7 @@ export default function LecturerDashboardLayout({
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
-                      <Link href="/courses">
+                      <Link href="/courses" className={sideMenuClass("/courses")}>
                         <BookOpen className="h-4 w-4" />
                         <span>All Courses</span>
                       </Link>
@@ -80,8 +102,8 @@ export default function LecturerDashboardLayout({
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
-                      <Link href="/courses/new">
-                        <BookOpen className="h-4 w-4" />
+                      <Link href="/courses/new" className={sideMenuClass("/courses/new")}>
+                        <PlusCircle className="h-4 w-4" />
                         <span>Create Course</span>
                       </Link>
                     </SidebarMenuButton>
@@ -96,9 +118,9 @@ export default function LecturerDashboardLayout({
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
-                      <Link href="/students">
-                        <Users className="h-4 w-4" />
-                        <span>Manage Students</span>
+                      <Link href="/students" className={sideMenuClass("/students")}>
+                        <Users2 className="h-4 w-4" />
+                        <span>My Students</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -113,17 +135,15 @@ export default function LecturerDashboardLayout({
                   <span className="text-sm font-medium text-blue-600">JS</span>
                 </div>
                 {lecturerDetails && (
-                  <div>
+                  <Link href={`/profile`}>
                     <p className="text-sm font-medium">
-                      <span className="capitalize">
-                        {lecturerDetails.title}
-                      </span>{" "}
+                      <span className="capitalize">{lecturerDetails.title}</span>{" "}
                       {lecturerDetails.name}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {lecturerDetails.department}
                     </p>
-                  </div>
+                  </Link>
                 )}
               </div>
               <Button variant="ghost" size="icon" onClick={handleLogout}>
@@ -138,22 +158,13 @@ export default function LecturerDashboardLayout({
             <SidebarTrigger />
             <div className="w-full flex-1">
               <nav className="flex items-center gap-4">
-                <Link
-                  href=""
-                  className="text-sm font-medium transition-colors hover:text-primary"
-                >
+                <Link href="/" className={navLinkClass("/")}>
                   Home
                 </Link>
-                <Link
-                  href="/courses"
-                  className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-                >
+                <Link href="/courses" className={navLinkClass("/courses")}>
                   Courses
                 </Link>
-                <Link
-                  href="/students"
-                  className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-                >
+                <Link href="/students" className={navLinkClass("/students")}>
                   Students
                 </Link>
               </nav>

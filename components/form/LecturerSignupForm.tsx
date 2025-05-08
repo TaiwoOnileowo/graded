@@ -72,6 +72,7 @@ const LecturerSignupForm = () => {
 
   // Handle form submission
   const onSubmit = async (values: LecturerFormValues) => {
+    console.log('Working ')
     setIsSubmitting(true);
 
     try {
@@ -241,6 +242,7 @@ const LecturerSignupForm = () => {
             type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700"
             disabled={isSubmitting}
+            onClick={() => onSubmit(form.getValues())} // Call onSubmit with current form values
           >
             {isSubmitting ? "Creating Account..." : "Create Lecturer Account"}
           </Button>

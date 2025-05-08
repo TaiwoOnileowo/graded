@@ -80,6 +80,89 @@ export const getCourses = async (studentId?: string) => {
   }
 };
 
+export const getCourseName = async (courseId: string) => {
+  try {
+    const course = await prisma.course.findUnique({
+      where: {
+        id: courseId,
+      },
+      select: {
+        name: true,
+        code: true
+      },
+    });
+    return {
+      name: course?.name,
+      code: course?.code,
+    };
+  } catch (error) {
+    console.log(error, "Error");
+    throw new Error("Error fetching course name");
+  }
+};
+
+export const getLecuterCourses = async (lecturerId?: string) => {
+  try {
+    const courses = await prisma.course.findMany({
+      where: {
+        lecturerId,
+      },
+      select: {
+        id: true,
+        name: true,
+        code: true,
+        description: true,
+        isPublished: true,
+        createdAt: true,
+        updatedAt: true,
+        lecturer: {
+          select: {
+            user: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        assignments: {
+          select: {
+            id: true,
+          },
+          where: {
+            isPublished: true,
+          },
+        },
+        enrollments: {
+          select: {
+            id: true,
+            studentId: true,
+          },
+          where: {
+            status: "ENROLLED",
+          },
+        },
+      },
+    });
+    return courses.map((course) => {
+      return {
+        id: course.id,
+        name: course.name,
+        code: course.code,
+        description: course.description,
+        isPublished: course.isPublished,
+        lecturer: course.lecturer.user.name,
+        createdAt: course.createdAt,
+        students: course.enrollments.length,
+        updatedAt: course.updatedAt,
+        assignments: course.assignments.length,
+      };
+    });
+  } catch (error) {
+    console.log(error, "Error");
+    throw new Error("Error fetching courses");
+  }
+};
+
 export const getCourseById = async (courseId: string, studentId?: string) => {
   try {
     const course = await prisma.course.findUnique({
@@ -181,3 +264,87 @@ export const enrollStudent = async (courseId: string, studentId: string) => {
     throw new Error("Error enrolling student");
   }
 };
+
+export const getEnrolledStudents = async (courseId: string) => { 
+  try {
+    const course = await prisma.course.findUnique({
+      where: { id: courseId },
+      select: {
+        id: true,
+        name: true,
+        enrollments: {
+          where: {
+            status: "ENROLLED",
+          },
+          include: {
+            student: {
+              include: {
+                user: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!course) {
+      throw new Error("Course not found");
+    }
+
+    const students = course.enrollments.map((enrollment) => ({
+      id: enrollment.student.id,
+      name: enrollment.student.user.name,
+      email: enrollment.student.user.email,
+      matricNumber: enrollment.student.matricNumber,
+      level: enrollment.student.level,
+      major: enrollment.student.major,
+      courseId: course.id,
+      courseName: course.name,
+    }));
+
+    return students;
+  } catch (error) {
+    console.log(error, "Error");
+    throw new Error("Error fetching enrolled students");
+  }
+};
+
+export const  getEnrolledStudentsByLecturer = async (userId: string) =>{
+  const lecturer = await prisma.lecturer.findUnique({
+    where: { id: userId },
+    include: {
+      courses: {
+        include: {
+          enrollments: {
+            include: {
+              student: {
+                include: {
+                  user: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!lecturer) {
+    throw new Error('Lecturer not found');
+  }
+
+  // Flatten and return student users
+  const enrolledStudents = lecturer.courses.flatMap(course =>
+    course.enrollments.map(enrollment => ({
+      courseId: course.id,
+      courseName: course.name,
+      studentId: enrollment.student.id,
+      matricNumber: enrollment.student.matricNumber,
+      level: enrollment.student.level,
+      major: enrollment.student.major,
+      user: enrollment.student.user,
+    }))
+  );
+
+  return enrolledStudents;
+}

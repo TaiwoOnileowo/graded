@@ -1,4 +1,6 @@
 export interface ILecturer {
+  id?: string;
+  email?: string;
   name: string;
   title: string;
   department: string;
@@ -10,15 +12,25 @@ export interface CourseData {
   lecturerId: string;
 }
 
+export interface Course {
+  id: string;
+  name: string;
+  code: string;
+  description?: string;
+  isPublished: boolean;
+  lecturer: string;
+  assignments: number;
+}
+
 export interface ICourse {
   id: string;
   name: string;
   code: string;
   description: string | null;
   assignments: number;
-  students: number;
+  students?: number;
   isPublished: boolean;
-  enrolled: boolean;
+  enrolled?: boolean;
   lecturer: string;
 }
 

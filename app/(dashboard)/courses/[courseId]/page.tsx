@@ -13,7 +13,6 @@ const Page = async ({ params }: any) => {
   if (!course) {
     return notFound();
   }
-  console.log("course", course);
   return (
     <>
       {isStudent ? (
