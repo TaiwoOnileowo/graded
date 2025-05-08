@@ -8,7 +8,13 @@ import Info from "../icons/Info";
 import Success from "../icons/Success";
 import Warn from "../icons/Warn";
 import { Button } from "../ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { Tabs, TabsTrigger, TabsContent, TabsList } from "../ui/tabs";
 
 // Import Monaco Editor dynamically (client-side only)
@@ -89,22 +95,22 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialCode }) => {
   const handleRunCode = async () => {
     if (!editorRef.current) return;
 
-    if (!dockerStatus.docker?.running || !dockerStatus.container?.running) {
-      setOutput({
-        success: false,
-        message: "Code execution service is not available",
-        stdout: "",
-        stderr: "Please start the Docker container to run code.",
-      });
-      return;
-    }
+    // if (!dockerStatus.docker?.running || !dockerStatus.container?.running) {
+    //   setOutput({
+    //     success: false,
+    //     output: "Code execution service is not available",
+    //     stdout: "",
+    //     stderr: "Please start the Docker container to run code.",
+    //   });
+    //   return;
+    // }
 
     const code = editorRef.current.getValue();
 
     if (!code.trim()) {
       setOutput({
         success: false,
-        message: "Please enter some code.",
+        output: "Please enter some code.",
         stdout: "",
         stderr: "",
       });
@@ -136,7 +142,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialCode }) => {
     if (dockerStatus.checking) {
       return (
         <div className="flex items-center text-gray-500">
-         <Loader />
+          <Loader />
           Checking Docker status...
         </div>
       );
@@ -145,7 +151,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialCode }) => {
     if (!dockerStatus.docker?.running) {
       return (
         <div className="bg-red-100 text-red-700 p-2 rounded flex items-center">
-         <Info />
+          <Info />
           Docker is not running. Please start Docker Desktop.
         </div>
       );
@@ -155,7 +161,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialCode }) => {
       return (
         <div className="flex items-center text-sm">
           <span className="bg-yellow-100 text-yellow-700 p-2 rounded flex items-center mr-2">
-           <Warn />
+            <Warn />
             Executor container is not running
           </span>
           <Button
@@ -217,11 +223,11 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialCode }) => {
           {renderDockerStatus()}
           <Button
             onClick={handleRunCode}
-            disabled={
-              isRunning ||
-              !dockerStatus.docker?.running ||
-              !dockerStatus.container?.running
-            }
+            // disabled={
+            //   isRunning ||
+            //   !dockerStatus.docker?.running ||
+            //   !dockerStatus.container?.running
+            // }
             className={`text-sm ${
               isRunning ||
               !dockerStatus.docker?.running ||
@@ -284,7 +290,15 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialCode }) => {
                     <div className="mb-4">
                       <h3 className="font-medium mb-1">Execution Time:</h3>
                       <pre className="bg-white p-2 border rounded whitespace-pre-wrap">
-                        {output.executionTime}
+                        {output.executionTime}s
+                      </pre>
+                    </div>
+                  )}
+                  {output.stderr && (
+                    <div>
+                      <h3 className="font-medium mb-1">Standard Error:</h3>
+                      <pre className="bg-white p-2 border rounded text-red-600 whitespace-pre-wrap">
+                        {output.stderr}
                       </pre>
                     </div>
                   )}
