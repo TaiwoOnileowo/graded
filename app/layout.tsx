@@ -4,9 +4,11 @@ import "./globals.css";
 import QueryProvider from "./QueryProvider";
 
 export const metadata: Metadata = {
-  title: "GRADED",
-  description: "Automated grading for programming assignments",
+  title: "GRADED | Smart Grading Platform for Programming Assignments",
+  description:
+    "GRADED is an intelligent platform that automates the grading of coding assignments. Ideal for lecturers and students, it simplifies evaluation with test cases, rubrics, and real-time feedback.",
 };
+
 
 export default function RootLayout({
   children,

@@ -30,11 +30,31 @@ interface Assignment {
   }>;
 }
 
-const Page = async ({
-  params,
-}: {
-  params: Promise<{ assignmentId: string }>;
-}) => {
+// SEO Metadata function
+export async function generateMetadata({ params }: { params: any }) {
+  const { assignmentId } = await params;
+  const session = await auth();
+  const studentId = session?.user.student?.id;
+
+  const result = await getAssignmentDetails(assignmentId, studentId!);
+
+  if (!result.success || !result.data) {
+    return {
+      title: "Assignment Not Found | Course Management",
+      description: "The requested assignment is not available.",
+    };
+  }
+
+  const assignment: Assignment = result.data;
+  const { title, course, marks, deadline } = assignment;
+
+  return {
+    title: `${title} - ${course.name} Assignment | Course Management`,
+    description: `Complete your assignment: ${title} for the course ${course.name}. Total Marks: ${marks}. Deadline: ${new Date(deadline!).toLocaleString()}.`,
+  };
+}
+
+const Page = async ({ params }: { params: Promise<{ assignmentId: string }> }) => {
   const session = await auth();
   const studentId = session?.user.student?.id;
   const { assignmentId } = await params;

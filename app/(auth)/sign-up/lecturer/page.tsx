@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -9,6 +10,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+// SEO metadata
+export const metadata: Metadata = {
+  title: "Lecturer Sign Up | GRADED",
+  description:
+    "Create your lecturer account on GRADED to manage programming courses, assignments, and track student performance with automated grading.",
+};
 
 export default function LecturerSignUpPage() {
   return (
