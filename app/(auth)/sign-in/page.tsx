@@ -4,13 +4,15 @@ import {
   Card,
   CardDescription,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@/components/ui/card";
+import { Suspense } from "react";
 
 // SEO Metadata
 export const metadata: Metadata = {
   title: "Sign In | GRADED",
-  description: "Access your GRADED account to manage and submit programming assignments, track progress, and collaborate with lecturers and peers.",
+  description:
+    "Access your GRADED account to manage and submit programming assignments, track progress, and collaborate with lecturers and peers.",
 };
 
 export default function SignInPage() {
@@ -22,7 +24,15 @@ export default function SignInPage() {
           Enter your credentials to access your account
         </CardDescription>
       </CardHeader>
-      <SigninForm />
+      <Suspense
+        fallback={
+          <div className="flex h-96 items-center justify-center">
+            Loading...
+          </div>
+        }
+      >
+        <SigninForm />
+      </Suspense>
     </Card>
   );
 }
