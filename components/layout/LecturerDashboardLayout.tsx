@@ -94,7 +94,10 @@ export default function LecturerDashboardLayout({
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
-                      <Link href="/courses" className={sideMenuClass("/courses")}>
+                      <Link
+                        href="/courses"
+                        className={sideMenuClass("/courses")}
+                      >
                         <BookOpen className="h-4 w-4" />
                         <span>All Courses</span>
                       </Link>
@@ -102,25 +105,12 @@ export default function LecturerDashboardLayout({
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
-                      <Link href="/courses/new" className={sideMenuClass("/courses/new")}>
+                      <Link
+                        href="/courses/new"
+                        className={sideMenuClass("/courses/new")}
+                      >
                         <PlusCircle className="h-4 w-4" />
                         <span>Create Course</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-
-            <SidebarGroup>
-              <SidebarGroupLabel>Students</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link href="/students" className={sideMenuClass("/students")}>
-                        <Users2 className="h-4 w-4" />
-                        <span>My Students</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -137,7 +127,9 @@ export default function LecturerDashboardLayout({
                 {lecturerDetails && (
                   <Link href={`/profile`}>
                     <p className="text-sm font-medium">
-                      <span className="capitalize">{lecturerDetails.title}</span>{" "}
+                      <span className="capitalize">
+                        {lecturerDetails.title}
+                      </span>{" "}
                       {lecturerDetails.name}
                     </p>
                     <p className="text-xs text-muted-foreground">
@@ -164,16 +156,7 @@ export default function LecturerDashboardLayout({
                 <Link href="/courses" className={navLinkClass("/courses")}>
                   Courses
                 </Link>
-                <Link href="/students" className={navLinkClass("/students")}>
-                  Students
-                </Link>
               </nav>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
-              </Button>
             </div>
           </header>
           <main className="flex-1 flex overflow-y-auto bg-muted/40 p-4 lg:p-6">

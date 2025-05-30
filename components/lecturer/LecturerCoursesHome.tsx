@@ -79,9 +79,7 @@ export default function CoursesPage({ courses }: { courses: ICourse[] }) {
           <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-full bg-blue-200 shadow">
             <BookOpen className="h-12 w-12 text-blue-600" />
           </div>
-          <h2 className="text-2xl">
-            No matching courses found.
-          </h2>
+          <h2 className="text-2xl">No matching courses found.</h2>
           <Button className="bg-blue-600 hover:bg-blue-700" asChild>
             <Link href="/courses/new">
               <Plus className="mr-2 h-4 w-4" />
@@ -89,7 +87,6 @@ export default function CoursesPage({ courses }: { courses: ICourse[] }) {
             </Link>
           </Button>
         </div>
-     
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {activeCourses.map((course) => (
@@ -110,26 +107,6 @@ function CourseCard({ course }: { course: ICourse }) {
             <CardTitle>{course.name}</CardTitle>
             <CardDescription>{course.code}</CardDescription>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <MoreHorizontal className="h-4 w-4" />
-                <span className="sr-only">Actions</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link href={`/courses/${course.id}/edit`}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Course
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive focus:text-destructive">
-                <Trash className="mr-2 h-4 w-4" />
-                Delete Course
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </CardHeader>
       <CardContent>

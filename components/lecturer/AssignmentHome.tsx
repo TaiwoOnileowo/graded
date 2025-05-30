@@ -180,6 +180,21 @@ export default function LecturerNewAssignmentPage({
                   <Label htmlFor="deadline">Deadline</Label>
                   <Input id="deadline" name="deadline" type="datetime-local" />
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="timeLimit">Time Limit (minutes)</Label>
+                  <Input
+                    id="timeLimit"
+                    name="timeLimit"
+                    type="number"
+                    placeholder="e.g. 60"
+                    min="1"
+                    className="w-full"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Leave empty for no time limit
+                  </p>
+                </div>
               </CardContent>
             </Card>
 

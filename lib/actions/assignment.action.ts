@@ -9,6 +9,10 @@ const assignmentSchema = z.object({
   description: z.string().optional(),
   marks: z.number().min(0, "Marks must be positive"),
   deadline: z.string().optional(),
+  timeLimit: z
+    .number()
+    .min(1, "Time limit must be at least 1 minute")
+    .optional(),
   questionText: z.string().optional(),
   codeTemplate: z.string().optional(),
   expectedSolution: z.string().optional(),
@@ -38,6 +42,9 @@ export async function createAssignment(formData: FormData) {
       description: formData.get("description") as string,
       marks: Number(formData.get("marks")),
       deadline: formData.get("deadline") as string,
+      timeLimit: formData.get("timeLimit")
+        ? Number(formData.get("timeLimit"))
+        : undefined,
       questionText: formData.get("questionText") as string,
       codeTemplate: formData.get("codeTemplate") as string,
       expectedSolution: formData.get("expectedSolution") as string,
@@ -55,6 +62,7 @@ export async function createAssignment(formData: FormData) {
         deadline: validatedData.deadline
           ? new Date(validatedData.deadline)
           : undefined,
+        timeLimit: validatedData.timeLimit,
         questionText: validatedData.questionText,
         codeTemplate: validatedData.codeTemplate,
         expectedSolution: validatedData.expectedSolution,

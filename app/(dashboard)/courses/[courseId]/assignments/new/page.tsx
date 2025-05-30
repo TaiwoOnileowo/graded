@@ -5,7 +5,11 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 // SEO Metadata function
-export async function generateMetadata({ params }: { params: any }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: any;
+}): Promise<Metadata> {
   const { courseId: id } = await params;
 
   // Get course name and code

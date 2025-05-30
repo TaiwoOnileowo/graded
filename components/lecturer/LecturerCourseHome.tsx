@@ -45,8 +45,8 @@ export default function LecturerCoursePage({ course }: { course: any }) {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-7">
-        <Card className="md:col-span-5">
+      <div className="grid gap-4 ">
+        <Card>
           <CardHeader>
             <CardTitle>Course Overview</CardTitle>
             <CardDescription>
@@ -96,12 +96,6 @@ export default function LecturerCoursePage({ course }: { course: any }) {
             </div>
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Button variant="outline" asChild>
-              <Link href={`/courses/${course.id}/edit`}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit Course
-              </Link>
-            </Button>
             <Button className="bg-blue-600 hover:bg-blue-700" asChild>
               <Link href={`/courses/${course.id}/assignments/new`}>
                 <Plus className="mr-2 h-4 w-4" />
@@ -111,7 +105,7 @@ export default function LecturerCoursePage({ course }: { course: any }) {
           </CardFooter>
         </Card>
 
-        <Card className="md:col-span-2">
+        {/* <Card className="md:col-span-2">
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
@@ -122,20 +116,8 @@ export default function LecturerCoursePage({ course }: { course: any }) {
                 Manage Students
               </Link>
             </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link href={`/courses/${course.id}/assignments`}>
-                <BookOpen className="mr-2 h-4 w-4" />
-                View Assignments
-              </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link href={`/courses/${course.id}/submissions`}>
-                <FileText className="mr-2 h-4 w-4" />
-                Review Submissions
-              </Link>
-            </Button>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
 
       <Tabs defaultValue="assignments">
