@@ -13,7 +13,12 @@ export async function generateMetadata({
   const { courseId: id } = await params;
 
   // Get course name and code
-  const { name, code } = await getCourseName(id);
+  const courseDetails = await getCourseName(id);
+  if (!courseDetails) {
+    return {};
+  }
+
+  const { name, code } = courseDetails;
 
   return {
     title: `Create New Assignment - ${name} (${code}) | Course Management`,

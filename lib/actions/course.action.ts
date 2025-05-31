@@ -312,7 +312,7 @@ export const enrollStudent = async (
     // First, get the course to verify the password
     const course = await prisma.course.findUnique({
       where: { id: courseId },
-      select: { password: true },
+      select: { password: true, code: true },
     });
 
     if (!course) {
@@ -320,7 +320,10 @@ export const enrollStudent = async (
     }
 
     // Verify the password
-    if (course.password !== password) {
+    if (
+      course.password !== password &&
+      course.code.toUpperCase() !== password
+    ) {
       throw new Error("Invalid course password");
     }
 

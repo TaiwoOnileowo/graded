@@ -15,7 +15,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { courseId: id } = await params;
   const enrolledStudents = await getEnrolledStudents(id);
-  const { name, code } = await getCourseName(id);
+  const courseDetails = await getCourseName(id);
+  if (!courseDetails) {
+    return {};
+  }
+
+  const { name, code } = courseDetails;
 
   return {
     title: `${name} (${code}) - Students List | Course Management`,
@@ -35,7 +40,12 @@ const Page = async ({ params }: { params: any }) => {
   console.log(enrolledStudents);
 
   // Get course name
-  const { name, code } = await getCourseName(id);
+  const courseDetails = await getCourseName(id);
+  if (!courseDetails) {
+    return {};
+  }
+
+  const { name, code } = courseDetails;
 
   // Check if the user is a student and if the courseId is valid
   if (isStudent) {

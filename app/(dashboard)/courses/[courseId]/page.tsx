@@ -6,16 +6,18 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 export async function generateMetadata({ params }: any): Promise<Metadata> {
-  const { courseId } = params;
+  const { courseId } = await params;
   const session = await auth();
   const role = session?.user?.role;
   const isStudent = role === "STUDENT";
   const course = await getCourseById(courseId);
-  const { name, code } = await getCourseName(courseId);
+  const courseDetails = await getCourseName(courseId);
 
-  if (!course) {
+  if (!course || !courseDetails) {
     return {};
   }
+
+  const { name, code } = courseDetails;
 
   return {
     title: isStudent
