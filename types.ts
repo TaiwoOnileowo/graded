@@ -9,6 +9,7 @@ export interface CourseData {
   name: string;
   code: string;
   description?: string;
+  password?: string;
   lecturerId: string;
 }
 

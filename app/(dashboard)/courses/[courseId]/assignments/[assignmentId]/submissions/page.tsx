@@ -3,6 +3,16 @@ import LecturerSubmissionsPage from "@/components/lecturer/SubmissionsHome";
 import { notFound } from "next/navigation";
 import { getCourseName } from "@/lib/actions/course.action";
 import { getAssignmentDetails } from "@/lib/actions/assignment.action";
+import {
+  getSubmissions,
+  getSubmissionStats,
+} from "@/lib/actions/submission.action";
+import {
+  HydrationBoundary,
+  QueryClient,
+  dehydrate,
+} from "@tanstack/react-query";
+import { queryClient } from "@/lib/http";
 
 // SEO Metadata function
 export async function generateMetadata({ params }: { params: any }) {
@@ -50,8 +60,25 @@ const Page = async ({ params }: { params: any }) => {
     return notFound();
   }
 
+  // Prefetch the initial data
+  await Promise.all([
+    queryClient.prefetchQuery({
+      queryKey: ["submissions", assignmentId, 1, 10, ""],
+      queryFn: () => getSubmissions(assignmentId, 1, 10),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ["submissionStats", assignmentId],
+      queryFn: () => getSubmissionStats(assignmentId),
+    }),
+  ]);
+
   return (
-    <LecturerSubmissionsPage courseId={courseId} assignmentId={assignmentId} />
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <LecturerSubmissionsPage
+        courseId={courseId}
+        assignmentId={assignmentId}
+      />
+    </HydrationBoundary>
   );
 };
 

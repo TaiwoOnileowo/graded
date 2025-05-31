@@ -2,11 +2,9 @@ import {
   ArrowLeft,
   BookOpen,
   Calendar,
-  Edit,
   FileText,
   MoreHorizontal,
   Plus,
-  UserCogIcon,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -29,7 +27,32 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Assignment, Submission } from "@prisma/client/edge";
 
-export default function LecturerCoursePage({ course }: { course: any }) {
+interface StudentData {
+  enrollmentId: string;
+  studentId: string;
+  status: string;
+  enrolledAt: Date;
+  level: number;
+  major: string;
+  matricNumber: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
+interface CourseData {
+  id: string;
+  name: string;
+  code: string;
+  description?: string;
+  assignments: (Assignment & { submissions: Submission[] })[];
+  enrollments: any[];
+  studentList: StudentData[];
+}
+
+export default function LecturerCoursePage({ course }: { course: CourseData }) {
   return (
     <div className="space-y-6 h-full flex-1">
       <div className="flex items-center gap-2">
@@ -78,7 +101,7 @@ export default function LecturerCoursePage({ course }: { course: any }) {
                     <span className="text-sm font-medium">Students</span>
                   </div>
                   <p className="mt-1 text-2xl font-bold">
-                    {course?.enrollments?.length}
+                    {course?.studentList?.length || 0}
                   </p>
                 </div>
                 <div className="rounded-lg border p-3">
@@ -87,9 +110,11 @@ export default function LecturerCoursePage({ course }: { course: any }) {
                     <span className="text-sm font-medium">Submissions</span>
                   </div>
                   <p className="mt-1 text-2xl font-bold">
-                    {course.assignments.length > 0
-                      ? course?.submissions?.length
-                      : 0}
+                    {course.assignments.reduce(
+                      (total, assignment) =>
+                        total + (assignment?.submissions?.length || 0),
+                      0
+                    )}
                   </p>
                 </div>
               </div>
@@ -104,20 +129,6 @@ export default function LecturerCoursePage({ course }: { course: any }) {
             </Button>
           </CardFooter>
         </Card>
-
-        {/* <Card className="md:col-span-2">
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link href={`/courses/${course.id}/students`}>
-                <UserCogIcon className="mr-2 h-4 w-4" />
-                Manage Students
-              </Link>
-            </Button>
-          </CardContent>
-        </Card> */}
       </div>
 
       <Tabs defaultValue="assignments">
@@ -163,14 +174,7 @@ export default function LecturerCoursePage({ course }: { course: any }) {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem asChild>
-                              <Link
-                                href={`/courses/${course.id}/assignments/${assignment.id}/edit`}
-                              >
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit Assignment
-                              </Link>
-                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild></DropdownMenuItem>
                             <DropdownMenuItem asChild>
                               <Link
                                 href={`/courses/${course.id}/assignments/${assignment.id}/submissions`}
@@ -191,7 +195,7 @@ export default function LecturerCoursePage({ course }: { course: any }) {
                         <div className="flex items-center gap-1 text-sm">
                           <FileText className="h-4 w-4 text-muted-foreground" />
                           <span>
-                            {assignment?.submissions?.length} submissions
+                            {assignment?.submissions?.length || 0} submissions
                           </span>
                         </div>
                         <div className="flex items-center gap-1 text-sm">
@@ -203,7 +207,7 @@ export default function LecturerCoursePage({ course }: { course: any }) {
                         </div>
                       </div>
                     </CardContent>
-                    <CardFooter className="border-t bg-muted/50 p-3">
+                    {/* <CardFooter className="border-t bg-muted/50 p-3">
                       <Button
                         variant="ghost"
                         size="sm"
@@ -216,7 +220,7 @@ export default function LecturerCoursePage({ course }: { course: any }) {
                           View Assignment
                         </Link>
                       </Button>
-                    </CardFooter>
+                    </CardFooter> */}
                   </Card>
                 )
               )
@@ -240,55 +244,115 @@ export default function LecturerCoursePage({ course }: { course: any }) {
         <TabsContent value="students" className="mt-4 space-y-4">
           <div className="flex justify-between">
             <h3 className="text-lg font-medium">Enrolled Students</h3>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Students
-            </Button>
+            <div className="text-sm text-muted-foreground">
+              Total: {course?.studentList?.length || 0} students
+            </div>
           </div>
 
           <Card>
             <CardContent className="p-0">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="px-4 py-3 text-left text-sm font-medium">
-                      Name
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-medium">
-                      Matric Number
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-medium">
-                      Level
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-medium">
-                      Submissions
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-medium">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {course.studentList &&
-                    course.studentList.map((student: any) => (
-                      <tr key={student.id} className="border-b">
-                        <td className="px-4 py-3 text-sm">{student.name}</td>
-                        <td className="px-4 py-3 text-sm">
-                          {student.matricNumber}
-                        </td>
-                        <td className="px-4 py-3 text-sm">{student.level}</td>
-                        <td className="px-4 py-3 text-sm">
-                          {student.submissions}/{course.assignments}
-                        </td>
-                        <td className="px-4 py-3 text-sm">
-                          <Button variant="ghost" size="sm" asChild>
-                            <Link href={`/students/${student.id}`}>View</Link>
-                          </Button>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b bg-muted/50">
+                      <th className="px-4 py-3 text-left text-sm font-medium">
+                        Name
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">
+                        Email
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">
+                        Matric Number
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">
+                        Level
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">
+                        Major
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">
+                        Enrolled
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {course.studentList && course.studentList.length > 0 ? (
+                      course.studentList.map((student: StudentData) => (
+                        <tr
+                          key={student.studentId}
+                          className="border-b hover:bg-muted/25"
+                        >
+                          <td className="px-4 py-3 text-sm font-medium">
+                            {student.user.name}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-muted-foreground">
+                            {student.user.email}
+                          </td>
+                          <td className="px-4 py-3 text-sm">
+                            {student.matricNumber}
+                          </td>
+                          <td className="px-4 py-3 text-sm">{student.level}</td>
+                          <td className="px-4 py-3 text-sm">{student.major}</td>
+                          <td className="px-4 py-3 text-sm">
+                            <span
+                              className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+                                student.status === "ENROLLED"
+                                  ? "bg-green-100 text-green-700"
+                                  : student.status === "COMPLETED"
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {student.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-muted-foreground">
+                            {new Date(student.enrolledAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-4 py-3 text-sm">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                  <span className="sr-only">Actions</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem asChild>
+                                  <Link
+                                    href={`/courses/${course.id}/students/${student.studentId}/submissions`}
+                                  >
+                                    <FileText className="mr-2 h-4 w-4" />
+                                    View Submissions
+                                  </Link>
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan={8}
+                          className="px-4 py-8 text-center text-sm text-muted-foreground"
+                        >
+                          <div className="flex flex-col items-center gap-2">
+                            <Users className="h-8 w-8 text-muted-foreground" />
+                            <span>No students enrolled in this course yet</span>
+                          </div>
                         </td>
                       </tr>
-                    ))}
-                </tbody>
-              </table>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

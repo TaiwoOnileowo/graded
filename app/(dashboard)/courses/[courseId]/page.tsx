@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
 }
 
 const Page = async ({ params }: any) => {
-  const { courseId } = params;
+  const { courseId } = await params;
   const session = await auth();
   const role = session?.user?.role;
   const isStudent = role === "STUDENT";
@@ -43,7 +43,7 @@ const Page = async ({ params }: any) => {
       {isStudent ? (
         <StudentCoursePage course={course} />
       ) : (
-        <LecturerCoursePage course={course} />
+        <LecturerCoursePage course={course as any} />
       )}
     </>
   );

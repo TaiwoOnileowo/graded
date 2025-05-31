@@ -46,6 +46,7 @@ model Course {
   name        String
   description String?
   createdAt   DateTime     @default(now())
+  password    String?
   updatedAt   DateTime     @updatedAt
   lecturerId  String
   isPublished Boolean      @default(true)
@@ -108,6 +109,14 @@ model Enrollment {
   @@unique([studentId, courseId])
 }
 
+model TestResult {
+  id String @id @default(cuid())
+  name String
+  passed Boolean
+  message String
+  submissionId String
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+}
 model Submission {
   id                String             @id @default(cuid())
   content           String?
@@ -122,7 +131,11 @@ model Submission {
   finalGrade        Float?
   gradedBy          String?
   testsPassed       Int?
+  testResults       TestResult[]
+  lecturerFeedback  String?
+  generalFeedback   String?
   testsTotal        Int?
+  timeSpent         Int?
   rubricEvaluations RubricEvaluation[]
   assignment        Assignment         @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   student           Student            @relation(fields: [studentId], references: [id], onDelete: Cascade)

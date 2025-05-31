@@ -3,7 +3,6 @@
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { createCourse } from "@/lib/actions/course.action";
 import Link from "next/link";
@@ -15,6 +14,7 @@ const CreateCourse = ({ id }: { id: string }) => {
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
+  const [password, setPassword] = useState("");
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -31,6 +31,7 @@ const CreateCourse = ({ id }: { id: string }) => {
           code,
           description,
           lecturerId: id,
+          password: password || code.toUpperCase(),
         });
 
         toast.success("Course created successfully!");
@@ -73,6 +74,20 @@ const CreateCourse = ({ id }: { id: string }) => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="password">Course Password (Optional)</Label>
+          <Input
+            id="password"
+            placeholder="Leave empty to use course code as password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <p className="text-sm text-gray-500">
+            If left empty, the course code in uppercase will be used as the
+            password
+          </p>
         </div>
       </CardContent>
 
