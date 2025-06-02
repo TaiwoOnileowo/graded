@@ -73,7 +73,7 @@ export async function getSubmissionReviewData(
       },
       submittedAt: submission.submittedAt,
       status: submission.gradedAt ? "Graded" : "Pending",
-      score: submission.finalGrade || 0,
+      score: submission.autoGrade || 0,
       maxScore: submission.assignment.marks,
       isLate:
         submission.submittedAt > (submission.assignment.deadline || new Date()),
@@ -137,9 +137,8 @@ export async function updateSubmissionFeedback(
       data: {
         lecturerFeedback: data.lecturerFeedback,
         generalFeedback: data.generalFeedback,
-        finalGrade: data.score,
+        autoGrade: data.score,
         gradedAt: new Date(),
-        gradedBy: session.user.id,
       },
     });
 

@@ -70,7 +70,7 @@ export async function getStudentSubmissions(
         assignmentId: sub.assignmentId,
         assignmentTitle: sub.assignment.title,
         submittedAt: sub.submittedAt,
-        score: sub.finalGrade || 0,
+        score: sub.autoGrade || 0,
         maxScore: sub.assignment.marks,
         status: sub.gradedAt ? "GRADED" : "LATE",
         feedback: sub.feedback,
@@ -120,7 +120,7 @@ export async function getStudentSubmissionStats(
     ).length;
 
     const averageScore =
-      submissions.reduce((acc, curr) => acc + (curr.finalGrade || 0), 0) /
+      submissions.reduce((acc, curr) => acc + (curr.autoGrade || 0), 0) /
       (gradedSubmissions || 1);
 
     return {

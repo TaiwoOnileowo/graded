@@ -17,7 +17,6 @@ export type SubmissionWithStudent = {
   feedback?: string | null;
   gradedAt?: Date | null;
   autoGrade?: number | null;
-  finalGrade?: number | null;
   testsPassed?: number | null;
   testsTotal?: number | null;
 };
@@ -97,14 +96,12 @@ export async function getSubmissions(
           : sub.submittedAt
           ? "Ungraded"
           : "Missing",
-        score: sub.finalGrade || null,
+        score: sub.autoGrade || null,
         totalScore: sub.assignment.marks,
         content: sub.content,
-        fileUrl: sub.fileUrl,
         feedback: sub.feedback,
         gradedAt: sub.gradedAt,
         autoGrade: sub.autoGrade,
-        finalGrade: sub.finalGrade,
         testsPassed: sub.testsPassed,
         testsTotal: sub.testsTotal,
       })
@@ -147,7 +144,7 @@ export async function getSubmissionStats(assignmentId: string) {
     const submissions = await prisma.submission.findMany({
       where: { assignmentId },
       select: {
-        finalGrade: true,
+        autoGrade: true,
         gradedAt: true,
       },
     });
@@ -155,7 +152,7 @@ export async function getSubmissionStats(assignmentId: string) {
     const totalSubmissions = submissions.length;
     const gradedCount = submissions.filter((s) => s.gradedAt).length;
     const averageScore =
-      submissions.reduce((acc, curr) => acc + (curr.finalGrade || 0), 0) /
+      submissions.reduce((acc, curr) => acc + (curr.autoGrade || 0), 0) /
       (gradedCount || 1);
 
     return {
