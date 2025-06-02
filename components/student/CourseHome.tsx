@@ -1,5 +1,9 @@
+"use client";
+
 import { ArrowLeft, BookOpen, Calendar, Trophy } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import axios from "axios";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,10 +16,131 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
+interface SubmissionModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  submission: any;
+}
+
+const SubmissionModal = ({
+  isOpen,
+  onClose,
+  submission,
+}: SubmissionModalProps) => {
+  if (!isOpen) return null;
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-8 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <h2 className="text-2xl font-bold mb-6">Submission Results</h2>
+
+        <div className="space-y-6">
+          <div className="bg-blue-50 p-4 rounded">
+            <h3 className="font-semibold text-blue-800">Final Score</h3>
+            <p className="text-2xl font-bold text-blue-600">
+              {submission.autoGrade}%
+            </p>
+            <p className="text-blue-600">
+              Tests Passed: {submission.testsPassed}/{submission.testsTotal}
+            </p>
+            {submission.timeSpent && (
+              <p className="text-blue-600">
+                Time Spent: {formatTime(submission.timeSpent)}
+              </p>
+            )}
+          </div>
+
+          {submission.testResults && submission.testResults.length > 0 && (
+            <div>
+              <h3 className="font-semibold mb-2">Test Results</h3>
+              {submission.testResults.map((result: any, index: number) => (
+                <div
+                  key={index}
+                  className={`p-3 rounded mb-2 ${
+                    result.passed ? "bg-green-50" : "bg-red-50"
+                  }`}
+                >
+                  <p
+                    className={`font-medium ${
+                      result.passed ? "text-green-800" : "text-red-800"
+                    }`}
+                  >
+                    {result.name}: {result.passed ? "Passed" : "Failed"}
+                  </p>
+                  <p className="text-sm">{result.message}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {submission.rubricEvaluations &&
+            submission.rubricEvaluations.length > 0 && (
+              <div>
+                <h3 className="font-semibold mb-2">Rubric Evaluations</h3>
+                {submission.rubricEvaluations.map(
+                  (evaluation: any, index: number) => (
+                    <div key={index} className="border-b pb-3 mb-3">
+                      <p className="font-medium">Points: {evaluation.points}</p>
+                      <p className="text-sm text-gray-600">
+                        {evaluation.comment}
+                      </p>
+                    </div>
+                  )
+                )}
+              </div>
+            )}
+
+          <div>
+            <h3 className="font-semibold mb-2">Feedback</h3>
+            <p className="text-gray-700">{submission.feedback}</p>
+          </div>
+
+          <div className="flex justify-end space-x-4 mt-6">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-blue-600 text-white rounded cursor-pointer hover:bg-blue-700"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function StudentCoursePage({ course }: { course: any }) {
+  const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const completedAssignments = course.assignments.filter(
     (assignment: any) => assignment.completed === true
   );
+
+  const handleViewSubmission = async (assignmentId: string) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get(
+        `/api/assignments/${assignmentId}/submission`
+      );
+      setSelectedSubmission(response.data.data);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching submission:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <main className="flex-1">
@@ -126,22 +251,27 @@ export default function StudentCoursePage({ course }: { course: any }) {
                           Pending
                         </div>
                       )}
-                      <Link
-                        href={
-                          assignment.completed
-                            ? `/courses/${course.id}/assignments/${assignment.id}/submission`
-                            : `/courses/${course.id}/assignments/${assignment.id}/editor`
-                        }
-                      >
+                      {assignment.completed ? (
                         <Button
                           size="sm"
                           className="bg-blue-600 cursor-pointer hover:bg-blue-700"
+                          onClick={() => handleViewSubmission(assignment.id)}
+                          disabled={isLoading}
                         >
-                          {assignment.completed
-                            ? "View Submission"
-                            : "Start Assignment"}
+                          {isLoading ? "Loading..." : "View Submission"}
                         </Button>
-                      </Link>
+                      ) : (
+                        <Link
+                          href={`/courses/${course.id}/assignments/${assignment.id}/editor`}
+                        >
+                          <Button
+                            size="sm"
+                            className="bg-blue-600 cursor-pointer hover:bg-blue-700"
+                          >
+                            Start Assignment
+                          </Button>
+                        </Link>
+                      )}
                     </CardFooter>
                   </Card>
                 ))}
@@ -150,6 +280,12 @@ export default function StudentCoursePage({ course }: { course: any }) {
           </div>
         </section>
       </main>
+
+      <SubmissionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        submission={selectedSubmission}
+      />
     </div>
   );
 }

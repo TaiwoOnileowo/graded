@@ -34,7 +34,7 @@ const Page = async ({ params }: any) => {
   const session = await auth();
   const role = session?.user?.role;
   const isStudent = role === "STUDENT";
-  const course = await getCourseById(courseId);
+  const course = await getCourseById(courseId, session?.user?.student?.id);
 
   if (!course) {
     return notFound();

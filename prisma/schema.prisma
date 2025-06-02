@@ -46,11 +46,11 @@ model Course {
   name        String
   description String?
   createdAt   DateTime     @default(now())
-  password    String?
   updatedAt   DateTime     @updatedAt
   lecturerId  String
   isPublished Boolean      @default(true)
   code        String
+  password    String?
   assignments Assignment[]
   lecturer    Lecturer     @relation(fields: [lecturerId], references: [id])
   enrollments Enrollment[]
@@ -62,7 +62,6 @@ model Assignment {
   description      String?
   marks            Int
   deadline         DateTime?
-  timeLimit        Int?         // Time limit in minutes
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
   courseId         String
@@ -71,6 +70,7 @@ model Assignment {
   hint             String?
   isPublished      Boolean      @default(true)
   questionText     String?
+  timeLimit        Int?
   course           Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
   rubrics          RubricItem[]
   submissions      Submission[]
@@ -110,35 +110,33 @@ model Enrollment {
 }
 
 model TestResult {
-  id String @id @default(cuid())
-  name String
-  passed Boolean
-  message String
+  id           String     @id @default(cuid())
+  name         String
+  passed       Boolean
+  message      String
   submissionId String
-  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 }
+
 model Submission {
   id                String             @id @default(cuid())
   content           String?
-  fileUrl           String?
   submittedAt       DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   studentId         String
   assignmentId      String
   feedback          String?
-  gradedAt          DateTime?
+  gradedAt          DateTime?          @default(now())
   autoGrade         Float?
-  finalGrade        Float?
-  gradedBy          String?
   testsPassed       Int?
-  testResults       TestResult[]
-  lecturerFeedback  String?
-  generalFeedback   String?
   testsTotal        Int?
   timeSpent         Int?
+  generalFeedback   String?
+  lecturerFeedback  String?
   rubricEvaluations RubricEvaluation[]
   assignment        Assignment         @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   student           Student            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  testResults       TestResult[]
 
   @@unique([studentId, assignmentId])
 }

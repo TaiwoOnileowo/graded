@@ -239,7 +239,11 @@ export const getCourseById = async (courseId: string, studentId?: string) => {
       matricNumber: enrollment.student.matricNumber,
       user: enrollment.student.user,
     }));
-
+    console.log(
+      JSON.stringify(course.assignments, null, 2),
+      "course.assignments",
+      studentId
+    );
     return {
       ...course,
       studentList, // Add this for easy access
