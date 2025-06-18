@@ -13,7 +13,6 @@ export async function middleware(req: NextRequest) {
     /^\/reset-password/,
     /^\/forgot-password/,
   ];
-  
 
   const isUnprotected = unProtectedPaths.some((path) => path.test(pathname));
 
@@ -31,7 +30,7 @@ export async function middleware(req: NextRequest) {
       }
 
       const redirectUrl = new URL("/sign-in", req.url);
-      redirectUrl.searchParams.set("redirect", pathname);
+      // redirectUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(redirectUrl);
     }
 

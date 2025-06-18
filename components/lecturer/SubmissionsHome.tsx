@@ -141,7 +141,6 @@ export default function LecturerSubmissionsPage({
                 </p>
               </CardContent>
             </Card>
-
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">
@@ -150,7 +149,7 @@ export default function LecturerSubmissionsPage({
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {stats?.averageScore.toFixed(1)}%
+                  {stats?.averageScore.toFixed(1)}/{stats?.totalScore}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Based on {stats?.gradedCount} graded submissions

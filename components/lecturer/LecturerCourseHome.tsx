@@ -189,7 +189,7 @@ export default function LecturerCoursePage({ course }: { course: CourseData }) {
                     </CardHeader>
                     <CardContent>
                       <p className="line-clamp-2 text-sm text-muted-foreground">
-                        {assignment.description}
+                        {assignment.questionText}
                       </p>
                       <div className="mt-4 flex items-center gap-4">
                         <div className="flex items-center gap-1 text-sm">

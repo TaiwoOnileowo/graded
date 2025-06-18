@@ -17,6 +17,7 @@ import {
 } from "../ui/select";
 import { Tabs, TabsTrigger, TabsContent, TabsList } from "../ui/tabs";
 import { useRouter } from "next/navigation";
+import { SubmissionModal } from "../student/CourseHome";
 
 // Import Monaco Editor dynamically (client-side only)
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
@@ -24,9 +25,16 @@ const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
 });
 
 interface CodeEditorProps {
-  initialCode: string;
   timeLimit?: number; // in minutes
   courseId: string;
+  testCases: {
+    id: string;
+    input: string;
+    expectedOutput: string;
+    description?: string | null;
+    assignmentId?: string;
+  }[];
+  totalMarks: number;
 }
 
 interface DockerStatus {
@@ -51,9 +59,10 @@ interface OutputState {
 }
 
 const CodeEditor: React.FC<CodeEditorProps> = ({
-  initialCode,
   timeLimit,
   courseId,
+  testCases,
+  totalMarks,
 }) => {
   const router = useRouter();
   const [language, setLanguage] = useState("python");
@@ -66,24 +75,99 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   const editorRef = useRef<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<any>(null);
-  const [timeLeft, setTimeLeft] = useState<number>(
-    timeLimit ? timeLimit * 60 : 0
-  ); // Convert to seconds
+  const [timeLeft, setTimeLeft] = useState<number>(0);
   const [timeSpent, setTimeSpent] = useState<number>(0);
   const timerRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const startTimeRef = useRef<number>(Date.now());
+  const [code, setCode] = useState("");
 
+  // Get unique key for this assignment session
+  const getSessionKey = () => {
+    const assignmentId = window.location.pathname.split("/")[4];
+    return `codeEditor_${assignmentId}`;
+  };
+
+  // Initialize persistent state
   useEffect(() => {
-    startTimeRef.current = Date.now();
+    if (typeof window !== "undefined") {
+      const sessionKey = getSessionKey();
+      const savedData = sessionStorage.getItem(sessionKey);
+
+      if (savedData) {
+        try {
+          const parsedData = JSON.parse(savedData);
+          const now = Date.now();
+          const elapsedTime = Math.floor((now - parsedData.startTime) / 1000);
+
+          // Restore code
+          setCode(parsedData.code || "");
+
+          // Restore timer state
+          if (timeLimit) {
+            const totalTimeInSeconds = timeLimit * 60;
+            const remainingTime = Math.max(0, totalTimeInSeconds - elapsedTime);
+            setTimeLeft(remainingTime);
+            setTimeSpent(elapsedTime);
+
+            // If time has run out, auto-submit
+            if (remainingTime <= 0) {
+              handleSubmit();
+            }
+          }
+
+          // Update start time reference
+          startTimeRef.current = parsedData.startTime;
+        } catch (error) {
+          console.error("Error parsing saved session data:", error);
+          initializeNewSession();
+        }
+      } else {
+        initializeNewSession();
+      }
+    }
+
     checkDockerStatus();
   }, []);
 
+  const initializeNewSession = () => {
+    const now = Date.now();
+    startTimeRef.current = now;
+
+    if (timeLimit) {
+      setTimeLeft(timeLimit * 60);
+    }
+
+    // Save initial session data
+    if (typeof window !== "undefined") {
+      const sessionKey = getSessionKey();
+      const sessionData = {
+        startTime: now,
+        code: "",
+        timeLimit: timeLimit,
+      };
+      sessionStorage.setItem(sessionKey, JSON.stringify(sessionData));
+    }
+  };
+
+  // Save session data whenever code or important state changes
+  const saveSessionData = (newCode?: string) => {
+    if (typeof window !== "undefined") {
+      const sessionKey = getSessionKey();
+      const sessionData = {
+        startTime: startTimeRef.current,
+        code: newCode !== undefined ? newCode : code,
+        timeLimit: timeLimit,
+      };
+      sessionStorage.setItem(sessionKey, JSON.stringify(sessionData));
+    }
+  };
+
   // Timer effect
   useEffect(() => {
-    if (timeLimit) {
+    if (timeLimit && timeLeft > 0) {
       timerRef.current = setInterval(() => {
         setTimeLeft((prev) => {
-          if (prev <= 0) {
+          if (prev <= 1) {
             clearInterval(timerRef.current);
             handleSubmit(); // Auto-submit when time is up
             return 0;
@@ -94,7 +178,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
 
       // Track time spent
       const timeSpentInterval = setInterval(() => {
-        setTimeSpent(Math.floor((Date.now() - startTimeRef.current) / 1000));
+        const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        setTimeSpent(elapsed);
       }, 1000);
 
       return () => {
@@ -102,7 +187,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
         clearInterval(timeSpentInterval);
       };
     }
-  }, [timeLimit]);
+  }, [timeLimit, timeLeft]);
 
   // Format time as MM:SS
   const formatTime = (seconds: number) => {
@@ -111,6 +196,24 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
       .toString()
       .padStart(2, "0")}`;
+  };
+
+  // Get timer color based on remaining time
+  const getTimerColor = () => {
+    if (!timeLimit) return "bg-gray-800 text-white";
+
+    const totalSeconds = timeLimit * 60;
+    const percentage = (timeLeft / totalSeconds) * 100;
+
+    if (percentage > 50) {
+      return "bg-green-600 text-white";
+    } else if (percentage > 25) {
+      return "bg-yellow-500 text-black";
+    } else if (percentage > 10) {
+      return "bg-orange-500 text-white";
+    } else {
+      return "bg-red-600 text-white animate-pulse";
+    }
   };
 
   const checkDockerStatus = async () => {
@@ -159,14 +262,49 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
 
   const handleEditorDidMount = (editor: any) => {
     editorRef.current = editor;
+
+    // Set initial code value
+    if (code) {
+      editor.setValue(code);
+    }
+
+    // Disable copy, paste, and right-click
+    editor.onKeyDown((e: any) => {
+      // Disable Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A
+      if (e.ctrlKey || e.metaKey) {
+        if (
+          e.keyCode === 67 || // Ctrl+C
+          e.keyCode === 86 || // Ctrl+V
+          e.keyCode === 88 || // Ctrl+X
+          e.keyCode === 65
+        ) {
+          // Ctrl+A
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }
+    });
+
+    // Disable right-click context menu
+    editor.onContextMenu((e: any) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    // Save code on every change
+    editor.onDidChangeModelContent(() => {
+      const newCode = editor.getValue();
+      setCode(newCode);
+      saveSessionData(newCode);
+    });
   };
 
   const handleRunCode = async () => {
     if (!editorRef.current) return;
 
-    const code = editorRef.current.getValue();
+    const currentCode = editorRef.current.getValue();
 
-    if (!code.trim()) {
+    if (!currentCode.trim()) {
       setOutput({
         success: false,
         message: "Please enter some code.",
@@ -181,7 +319,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       setOutput(null);
 
       const response = await axios.post("/api/editor/execute", {
-        code,
+        code: currentCode,
         language,
       });
       setOutput(response.data);
@@ -200,9 +338,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   const handleSubmit = async () => {
     if (!editorRef.current) return;
 
-    const code = editorRef.current.getValue();
+    const currentCode = editorRef.current.getValue();
 
-    if (!code.trim()) {
+    if (!currentCode.trim()) {
       setOutput({
         success: false,
         message: "Please enter some code.",
@@ -216,12 +354,17 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       setIsSubmitting(true);
       setSubmissionResult(null);
       setOutput(null);
+
+      // Clear timer
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+
       const response = await axios.post("/api/assignments/submit", {
-        code,
+        code: currentCode,
         assignmentId: window.location.pathname.split("/")[4],
         questionText: document.querySelector("[data-question-text]")
           ?.textContent,
-        description: document.querySelector("[data-description]")?.textContent,
         rubrics: Array.from(
           document.querySelectorAll("[data-rubric-item]")
         ).map((el) => ({
@@ -231,18 +374,18 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
             ?.textContent,
           maxPoints: parseInt(el.getAttribute("data-rubric-points") || "0"),
         })),
-        testCases: Array.from(
-          document.querySelectorAll("[data-test-case]")
-        ).map((el) => ({
-          id: el.getAttribute("data-test-case-id"),
-          input: el.querySelector("[data-test-input]")?.textContent,
-          expectedOutput: el.querySelector("[data-test-output]")?.textContent,
-          description: el.querySelector("[data-test-description]")?.textContent,
-        })),
         timeSpent,
+        testCases,
+        totalMarks,
       });
 
       setSubmissionResult(response.data.data);
+
+      // Clear session data after successful submission
+      if (typeof window !== "undefined") {
+        const sessionKey = getSessionKey();
+        sessionStorage.removeItem(sessionKey);
+      }
     } catch (error: any) {
       setOutput({
         success: false,
@@ -316,88 +459,19 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     </div>
   );
 
-  // Full screen result overlay
-  const ResultOverlay = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-8 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-6">Submission Results</h2>
-
-        <div className="space-y-6">
-          <div className="bg-blue-50 p-4 rounded">
-            <h3 className="font-semibold text-blue-800">Final Score</h3>
-            <p className="text-2xl font-bold text-blue-600">
-              {submissionResult.gradingResult.finalGrade}%
-            </p>
-            <p className="text-blue-600">
-              Tests Passed: {submissionResult.submission.testsPassed}/
-              {submissionResult.submission.testsTotal}
-            </p>
-            <p className="text-blue-600">Time Spent: {formatTime(timeSpent)}</p>
-          </div>
-
-          <div>
-            <h3 className="font-semibold mb-2">Test Results</h3>
-            {submissionResult.gradingResult.testResults.map(
-              (result: any, index: number) => (
-                <div
-                  key={index}
-                  className={`p-3 rounded mb-2 ${
-                    result.passed ? "bg-green-50" : "bg-red-50"
-                  }`}
-                >
-                  <p
-                    className={`font-medium ${
-                      result.passed ? "text-green-800" : "text-red-800"
-                    }`}
-                  >
-                    {result.name}: {result.passed ? "Passed" : "Failed"}
-                  </p>
-                  <p className="text-sm">{result.message}</p>
-                </div>
-              )
-            )}
-          </div>
-
-          <div>
-            <h3 className="font-semibold mb-2">Rubric Evaluations</h3>
-            {submissionResult.gradingResult.rubricEvaluations.map(
-              (evaluation: any, index: number) => (
-                <div key={index} className="border-b pb-3 mb-3">
-                  <p className="font-medium">Points: {evaluation.points}</p>
-                  <p className="text-sm text-gray-600">{evaluation.comment}</p>
-                </div>
-              )
-            )}
-          </div>
-
-          <div>
-            <h3 className="font-semibold mb-2">Feedback</h3>
-            <p className="text-gray-700">
-              {submissionResult.gradingResult.feedback}
-            </p>
-          </div>
-
-          <div className="flex justify-end space-x-4 mt-6">
-            <button
-              onClick={() => router.push(`/courses/${courseId}`)}
-              className="px-4 py-2 bg-blue-600 text-white rounded cursor-pointer hover:bg-blue-700"
-            >
-              Back to Course
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
   return (
     <div className="flex flex-col h-full">
       {/* Timer Display */}
       {timeLimit && (
-        <div className="bg-gray-800 text-white p-2 text-center">
-          <span className="font-mono text-lg">
+        <div
+          className={`p-2 text-center transition-colors duration-500 ${getTimerColor()}`}
+        >
+          <span className="font-mono text-lg font-bold">
             Time Remaining: {formatTime(timeLeft)}
           </span>
+          {timeLeft <= 60 && timeLeft > 0 && (
+            <span className="ml-2 text-sm">⚠️ Less than 1 minute left!</span>
+          )}
         </div>
       )}
 
@@ -437,12 +511,13 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
           <Button
             onClick={handleRunCode}
             className={`text-sm bg-green-600 hover:bg-green-700`}
+            disabled={isRunning || isSubmitting}
           >
             {isRunning ? "Running..." : "Run Code"}
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isRunning}
             className={`text-sm bg-blue-600 hover:bg-blue-700`}
           >
             {isSubmitting ? "Submitting..." : "Submit"}
@@ -457,7 +532,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
             height="100%"
             language={language}
             theme={theme}
-            defaultValue={initialCode}
             onMount={handleEditorDidMount}
             options={{
               minimap: { enabled: false },
@@ -466,6 +540,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
               fontSize: 14,
               tabSize: 2,
               padding: { top: 10 },
+              contextmenu: false, // Disable right-click context menu
+              selectOnLineNumbers: false,
+              readOnly: isSubmitting, // Make read-only during submission
             }}
           />
         </div>
@@ -583,7 +660,13 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
 
       {/* Overlays */}
       {isSubmitting && <LoadingOverlay />}
-      {submissionResult && <ResultOverlay />}
+      <SubmissionModal
+        submission={submissionResult?.submission}
+        onClose={() => {
+          router.push(`/courses/${courseId}`);
+        }}
+        isOpen={!!submissionResult}
+      />
     </div>
   );
 };

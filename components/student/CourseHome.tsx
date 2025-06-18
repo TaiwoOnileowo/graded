@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, BookOpen, Calendar, Trophy } from "lucide-react";
+import { ArrowLeft, BookOpen, Calendar, Clock, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import axios from "axios";
@@ -22,7 +22,7 @@ interface SubmissionModalProps {
   submission: any;
 }
 
-const SubmissionModal = ({
+export const SubmissionModal = ({
   isOpen,
   onClose,
   submission,
@@ -121,6 +121,21 @@ export default function StudentCoursePage({ course }: { course: any }) {
   const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Helper function to check if assignment start date has been reached
+  const isAssignmentStarted = (startDate: string | null | undefined) => {
+    if (!startDate) return true; // If no start date is set, assignment is available
+    const now = new Date();
+    const assignmentStartDate = new Date(startDate);
+    return now >= assignmentStartDate;
+  };
+
+  // Helper function to format date with time
+  const formatDateTime = (dateString: string | null | undefined) => {
+    if (!dateString) return "Immediately";
+    const date = new Date(dateString);
+    return date.toLocaleString();
+  };
 
   const completedAssignments = course.assignments.filter(
     (assignment: any) => assignment.completed === true
@@ -223,20 +238,31 @@ export default function StudentCoursePage({ course }: { course: any }) {
                         <div>
                           <CardTitle>{assignment.title}</CardTitle>
                           <CardDescription className="mt-1 line-clamp-2">
-                            {assignment.description}
+                            {assignment.questionText}
                           </CardDescription>
                         </div>
                         <div className="flex h-8 items-center rounded-full bg-blue-100 px-3 text-sm font-medium text-blue-800">
                           {assignment.marks} marks
                         </div>
                       </div>
-                    </CardHeader>
+                    </CardHeader>{" "}
                     <CardContent>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Calendar className="h-4 w-4" />
-                        <span>
-                          {new Date(assignment.deadline).toLocaleDateString()}
-                        </span>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Calendar className="h-4 w-4" />
+                          <span>
+                            Deadline:{" "}
+                            {new Date(assignment.deadline).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          {" "}
+                          <Clock className="h-4 w-4" />
+                          <span>
+                            Available from:{" "}
+                            {formatDateTime(assignment.startDate)}
+                          </span>
+                        </div>
                       </div>
                     </CardContent>
                     <CardFooter className="flex items-center justify-between border-t bg-muted/50 px-4 py-3">
@@ -250,7 +276,7 @@ export default function StudentCoursePage({ course }: { course: any }) {
                           <div className="h-2 w-2 rounded-full bg-amber-600"></div>
                           Pending
                         </div>
-                      )}
+                      )}{" "}
                       {assignment.completed ? (
                         <Button
                           size="sm"
@@ -260,7 +286,7 @@ export default function StudentCoursePage({ course }: { course: any }) {
                         >
                           {isLoading ? "Loading..." : "View Submission"}
                         </Button>
-                      ) : (
+                      ) : isAssignmentStarted(assignment.startDate) ? (
                         <Link
                           href={`/courses/${course.id}/assignments/${assignment.id}/editor`}
                         >
@@ -271,6 +297,14 @@ export default function StudentCoursePage({ course }: { course: any }) {
                             Start Assignment
                           </Button>
                         </Link>
+                      ) : (
+                        <Button
+                          size="sm"
+                          className="bg-gray-400 cursor-not-allowed"
+                          disabled
+                        >
+                          Not Available Yet
+                        </Button>
                       )}
                     </CardFooter>
                   </Card>

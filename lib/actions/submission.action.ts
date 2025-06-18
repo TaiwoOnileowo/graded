@@ -158,8 +158,9 @@ export async function getSubmissionStats(assignmentId: string) {
     return {
       totalSubmissions,
       totalStudents,
-      averageScore: Math.round(averageScore * 100) / 100,
+      averageScore,
       gradedCount,
+      totalScore: assignment.marks,
     };
   } catch (error) {
     console.error("Error fetching submission stats:", error);

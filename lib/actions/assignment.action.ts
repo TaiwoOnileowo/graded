@@ -9,6 +9,7 @@ const assignmentSchema = z.object({
   description: z.string().optional(),
   marks: z.number().min(0, "Marks must be positive"),
   deadline: z.string().optional(),
+  startDate: z.string().optional(),
   timeLimit: z
     .number()
     .min(1, "Time limit must be at least 1 minute")
@@ -39,16 +40,14 @@ export async function createAssignment(formData: FormData) {
   try {
     const data = {
       title: formData.get("title") as string,
-      description: formData.get("description") as string,
       marks: Number(formData.get("marks")),
       deadline: formData.get("deadline") as string,
+      startDate: formData.get("startDate") as string,
       timeLimit: formData.get("timeLimit")
         ? Number(formData.get("timeLimit"))
         : undefined,
       questionText: formData.get("questionText") as string,
-      codeTemplate: formData.get("codeTemplate") as string,
       expectedSolution: formData.get("expectedSolution") as string,
-      hint: formData.get("hint") as string,
       courseId: formData.get("courseId") as string,
       rubricItems: JSON.parse(formData.get("rubricItems") as string),
       testCases: JSON.parse(formData.get("testCases") as string),
@@ -57,16 +56,15 @@ export async function createAssignment(formData: FormData) {
     const assignment = await prisma.assignment.create({
       data: {
         title: validatedData.title,
-        description: validatedData.description,
         marks: validatedData.marks,
         deadline: validatedData.deadline
           ? new Date(validatedData.deadline)
           : undefined,
+        startDate: validatedData.startDate
+          ? new Date(validatedData.startDate)
+          : new Date(), // Default to current time if not set
         timeLimit: validatedData.timeLimit,
         questionText: validatedData.questionText,
-        codeTemplate: validatedData.codeTemplate,
-        expectedSolution: validatedData.expectedSolution,
-        hint: validatedData.hint,
         courseId: validatedData.courseId,
         rubrics: {
           create: validatedData.rubricItems.map((item) => ({

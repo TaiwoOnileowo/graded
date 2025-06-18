@@ -18,30 +18,17 @@ export async function POST(req: Request) {
     const {
       code,
       assignmentId,
-      questionText,
-      description,
-      rubrics,
       testCases,
+      totalMarks,
+      questionText,
+      rubrics,
+      timeSpent,
     } = await req.json();
-
-    const assignment = await prisma.assignment.findUnique({
-      where: { id: assignmentId },
-      include: { testCases: true, rubrics: true },
-    });
-
-    if (!assignment) {
-      return NextResponse.json(
-        { error: "Assignment not found" },
-        { status: 404 }
-      );
-    }
-
     const prompt = `
-You are an expert programming instructor grading a student's assignment. Please analyze the following:
+You are a supportive programming instructor grading a student's assignment. Write in a friendly, encouraging tone designed for beginners. Please analyze the following:
 
 Assignment Details:
 Question: ${questionText}
-Description: ${description}
 
 Student's Code:
 \`\`\`
@@ -62,20 +49,27 @@ ${testCases
   .join("\n\n")}
 
 Please provide:
-1. A detailed analysis of the code
-2. Whether each test case passes or fails
-3. A score for each rubric item with justification
-4. Overall feedback and suggestions for improvement
-5. A final grade (out of ${assignment.marks})
+1. A beginner-friendly analysis of the code using simple language
+2. Whether each test case passes or fails, with clear explanations about why tests failed and how to fix them
+3. A score for each rubric item with easy-to-understand justification
+4. Overall feedback that's encouraging and highlights what was done well first, then provides clear, specific suggestions for improvement
+5. A final grade (out of ${totalMarks})
+
+Guidelines for your feedback:
+- Use simple, non-technical language where possible
+- Explain programming concepts as if teaching someone new to coding
+- Give specific examples of how to improve the code
+- Be encouraging and positive, focusing on growth rather than mistakes
+- Provide step-by-step explanations for complex issues
 
 Format your response as JSON with the following structure:
 {
-  "analysis": "detailed analysis of the code",
+  "analysis": "beginner-friendly analysis of the code",
   "testResults": [
     {
       "name": "test case description",
       "passed": true/false,
-      "message": "explanation of result"
+      "message": "clear explanation of result with simple fix if failed"
     }
   ],
   "rubricEvaluations": [
@@ -83,10 +77,10 @@ Format your response as JSON with the following structure:
       "rubricItemId": "id",
       "points": number,
       "title": "title",
-      "comment": "justification"
+      "comment": "encouraging, easy-to-understand justification"
     }
   ],
-  "feedback": "overall feedback",
+  "feedback": "encouraging overall feedback with specific learning opportunities",
   "finalGrade": number
 }`;
 
@@ -98,7 +92,7 @@ Format your response as JSON with the following structure:
           {
             role: "system",
             content:
-              "You are an expert programming instructor grading student assignments. Provide detailed, constructive feedback and accurate grading based on the provided rubrics and test cases.",
+              "You are a kind, supportive programming instructor grading student assignments. Your goal is to help beginners learn and grow. Provide encouraging, easy-to-understand feedback using simple language. Explain concepts clearly as if teaching someone new to programming, highlight what the student did well, and offer specific, actionable suggestions for improvement. Grade accurately based on the provided rubrics and test cases, but focus on the learning experience rather than just the grade.",
           },
           { role: "user", content: prompt },
         ],
@@ -121,14 +115,14 @@ Format your response as JSON with the following structure:
     const rubricEvaluations = gradingResult.rubricEvaluations.map(
       (evaluation: any) => {
         // Try to find a rubric item by exact title match first
-        let rubricItem = assignment.rubrics.find(
-          (r) => r.title.toLowerCase() === evaluation.title.toLowerCase()
+        let rubricItem = rubrics.find(
+          (r: any) => r.title.toLowerCase() === evaluation.title.toLowerCase()
         );
 
         // If no exact match, try to find by partial title match
         if (!rubricItem) {
-          rubricItem = assignment.rubrics.find(
-            (r) =>
+          rubricItem = rubrics.find(
+            (r: any) =>
               r.title.toLowerCase().includes(evaluation.title.toLowerCase()) ||
               evaluation.title.toLowerCase().includes(r.title.toLowerCase())
           );
@@ -136,8 +130,8 @@ Format your response as JSON with the following structure:
 
         // If still no match, try to find by rubricItemId
         if (!rubricItem && evaluation.rubricItemId) {
-          rubricItem = assignment.rubrics.find(
-            (r) => r.id === evaluation.rubricItemId
+          rubricItem = rubrics.find(
+            (r: any) => r.id === evaluation.rubricItemId
           );
         }
 
@@ -146,7 +140,7 @@ Format your response as JSON with the following structure:
             `Could not find exact match for rubric: ${evaluation.title}`
           );
           // Find the first rubric item as a fallback
-          rubricItem = assignment.rubrics[0];
+          rubricItem = rubrics[0];
           if (!rubricItem) {
             throw new Error("No rubric items found in the assignment");
           }
@@ -177,15 +171,24 @@ Format your response as JSON with the following structure:
             message: result.message,
           })),
         },
+        timeSpent,
         rubricEvaluations: {
           create: rubricEvaluations,
+        },
+      },
+      include: {
+        testResults: true,
+        rubricEvaluations: {
+          include: {
+            rubricItem: true,
+          },
         },
       },
     });
 
     return NextResponse.json({
       success: true,
-      data: { submission, gradingResult },
+      data: { submission },
     });
   } catch (error) {
     console.error("Error in submission:", error);

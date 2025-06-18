@@ -111,11 +111,8 @@ const Page = async ({
               <CardTitle>Instructions</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600" data-description>
-                {assignment.description || "No description provided."}
-              </p>
               {assignment.questionText && (
-                <div className="mt-4">
+                <div>
                   <h3 className="font-semibold">Problem Statement:</h3>
                   <p
                     className="text-gray-600 whitespace-pre-wrap"
@@ -139,17 +136,6 @@ const Page = async ({
               </div>
             </CardContent>
           </Card>
-
-          {assignment.hint && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Hint</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">{assignment.hint}</p>
-              </CardContent>
-            </Card>
-          )}
 
           <Card>
             <CardHeader>
@@ -183,52 +169,19 @@ const Page = async ({
               )}
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Sample Test Cases</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {assignment.testCases.length > 0 ? (
-                <ul className="space-y-4">
-                  {assignment.testCases.map((testCase) => (
-                    <li
-                      key={testCase.id}
-                      className="border-b pb-2"
-                      data-test-case
-                      data-test-case-id={testCase.id}
-                    >
-                      <p className="font-semibold" data-test-description>
-                        {testCase.description || `Test Case ${testCase.id}`}
-                      </p>
-                      <p className="text-sm">
-                        <span className="font-medium">Input:</span>{" "}
-                        <span data-test-input>{testCase.input}</span>
-                      </p>
-                      <p className="text-sm">
-                        <span className="font-medium">Expected Output:</span>{" "}
-                        <span data-test-output>{testCase.expectedOutput}</span>
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-gray-600">No test cases provided.</p>
-              )}
-            </CardContent>
-          </Card>
         </div>
 
         {/* Right Panel: Code Editor */}
         <div className="lg:col-span-2">
           <CodeEditor
-            initialCode={assignment.codeTemplate || ""}
             timeLimit={
               typeof assignment.timeLimit === "number"
                 ? assignment.timeLimit
                 : undefined
             }
             courseId={assignment.course.id}
+            testCases={assignment.testCases}
+            totalMarks={assignment.marks}
           />
         </div>
       </div>

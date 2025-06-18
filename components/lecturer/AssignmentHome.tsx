@@ -149,21 +149,20 @@ export default function LecturerNewAssignmentPage({
                   <Input
                     id="title"
                     name="title"
-                    placeholder="e.g. Assignment 1: Linked Lists Implementation"
+                    placeholder="Enter assignment title"
                     required
                   />
                 </div>
-
+                
                 <div className="space-y-2">
-                  <Label htmlFor="description">Assignment Description</Label>
+                  <Label htmlFor="questionText">Question Text</Label>
                   <Textarea
-                    id="description"
-                    name="description"
-                    placeholder="Provide a detailed description of the assignment"
+                    id="questionText"
+                    name="questionText"
+                    placeholder="Describe the programming problem in detail"
                     className="min-h-[120px]"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="marks">Total Marks</Label>
                   <Input
@@ -182,6 +181,14 @@ export default function LecturerNewAssignmentPage({
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="startDate">Start Date</Label>
+                  <Input id="startDate" name="startDate" type="datetime-local" />
+                  <p className="text-sm text-muted-foreground">
+                    If not set, assignment will start immediately when published
+                  </p>
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="timeLimit">Time Limit (minutes)</Label>
                   <Input
                     id="timeLimit"
@@ -195,166 +202,6 @@ export default function LecturerNewAssignmentPage({
                     Leave empty for no time limit
                   </p>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Programming Question</CardTitle>
-                <CardDescription>
-                  Define the programming question and expected solution
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="questionText">Question Text</Label>
-                  <Textarea
-                    id="questionText"
-                    name="questionText"
-                    placeholder="Describe the programming problem in detail"
-                    className="min-h-[120px]"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="codeTemplate">Code Template (Optional)</Label>
-                  <Textarea
-                    id="codeTemplate"
-                    name="codeTemplate"
-                    placeholder="Provide a starting code template for students"
-                    className="min-h-[120px] font-mono text-sm"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="expectedSolution">Expected Solution</Label>
-                  <Textarea
-                    id="expectedSolution"
-                    name="expectedSolution"
-                    placeholder="Provide the expected solution for automated grading"
-                    className="min-h-[120px] font-mono text-sm"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="hint">Hint (Optional)</Label>
-                  <Textarea
-                    id="hint"
-                    name="hint"
-                    placeholder="Provide a hint to guide students"
-                    className="min-h-[80px]"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="space-y-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle>Grading Rubric</CardTitle>
-                  <CardDescription>
-                    Define criteria for grading this assignment
-                  </CardDescription>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Select onValueChange={addCriterion}>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Add criterion" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {criteriaTemplates.map((criterion) => (
-                        <SelectItem
-                          key={criterion.id}
-                          value={criterion.id}
-                          disabled={selectedCriteria.some(
-                            (c) => c.id === criterion.id
-                          )}
-                        >
-                          {criterion.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {selectedCriteria.length === 0 ? (
-                  <div className="text-center py-6 text-muted-foreground">
-                    No criteria added yet. Select criteria from the dropdown
-                    above.
-                  </div>
-                ) : (
-                  selectedCriteria.map((criterion, index) => (
-                    <div key={criterion.id} className="rounded-lg border p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-4 flex-1">
-                          <div className="space-y-2">
-                            <Label htmlFor={`criterion-${index}-title`}>
-                              Criterion Title
-                            </Label>
-                            <Input
-                              id={`criterion-${index}-title`}
-                              value={criterion.title}
-                              onChange={(e) =>
-                                updateCriterion(index, "title", e.target.value)
-                              }
-                              required
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor={`criterion-${index}-description`}>
-                              Description
-                            </Label>
-                            <Textarea
-                              id={`criterion-${index}-description`}
-                              value={criterion.description}
-                              onChange={(e) =>
-                                updateCriterion(
-                                  index,
-                                  "description",
-                                  e.target.value
-                                )
-                              }
-                              className="min-h-[80px]"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor={`criterion-${index}-points`}>
-                              Maximum Points
-                            </Label>
-                            <Input
-                              id={`criterion-${index}-points`}
-                              type="number"
-                              value={criterion.maxPoints}
-                              onChange={(e) =>
-                                updateCriterion(
-                                  index,
-                                  "maxPoints",
-                                  Number(e.target.value)
-                                )
-                              }
-                              required
-                              min="0"
-                            />
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive"
-                          onClick={() => removeCriterion(index)}
-                        >
-                          <Trash className="h-4 w-4" />
-                          <span className="sr-only">Delete criterion</span>
-                        </Button>
-                      </div>
-                    </div>
-                  ))
-                )}
               </CardContent>
             </Card>
 
@@ -472,6 +319,115 @@ export default function LecturerNewAssignmentPage({
                     No test cases added yet. Click "Add Test Case" to create
                     one.
                   </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="space-y-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Grading Rubric</CardTitle>
+                  <CardDescription>
+                    Define criteria for grading this assignment
+                  </CardDescription>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Select onValueChange={addCriterion}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Add criterion" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {criteriaTemplates.map((criterion) => (
+                        <SelectItem
+                          key={criterion.id}
+                          value={criterion.id}
+                          disabled={selectedCriteria.some(
+                            (c) => c.id === criterion.id
+                          )}
+                        >
+                          {criterion.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {selectedCriteria.length === 0 ? (
+                  <div className="text-center py-6 text-muted-foreground">
+                    No criteria added yet. Select criteria from the dropdown
+                    above.
+                  </div>
+                ) : (
+                  selectedCriteria.map((criterion, index) => (
+                    <div key={criterion.id} className="rounded-lg border p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-4 flex-1">
+                          <div className="space-y-2">
+                            <Label htmlFor={`criterion-${index}-title`}>
+                              Criterion Title
+                            </Label>
+                            <Input
+                              id={`criterion-${index}-title`}
+                              value={criterion.title}
+                              onChange={(e) =>
+                                updateCriterion(index, "title", e.target.value)
+                              }
+                              required
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor={`criterion-${index}-description`}>
+                              Description
+                            </Label>
+                            <Textarea
+                              id={`criterion-${index}-description`}
+                              value={criterion.description}
+                              onChange={(e) =>
+                                updateCriterion(
+                                  index,
+                                  "description",
+                                  e.target.value
+                                )
+                              }
+                              className="min-h-[80px]"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor={`criterion-${index}-points`}>
+                              Maximum Points
+                            </Label>
+                            <Input
+                              id={`criterion-${index}-points`}
+                              type="number"
+                              value={criterion.maxPoints}
+                              onChange={(e) =>
+                                updateCriterion(
+                                  index,
+                                  "maxPoints",
+                                  Number(e.target.value)
+                                )
+                              }
+                              required
+                              min="0"
+                            />
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive"
+                          onClick={() => removeCriterion(index)}
+                        >
+                          <Trash className="h-4 w-4" />
+                          <span className="sr-only">Delete criterion</span>
+                        </Button>
+                      </div>
+                    </div>                  ))
                 )}
               </CardContent>
             </Card>

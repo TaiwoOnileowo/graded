@@ -59,16 +59,13 @@ model Course {
 model Assignment {
   id               String       @id @default(cuid())
   title            String
-  description      String?
   marks            Int
   deadline         DateTime?
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
   courseId         String
-  codeTemplate     String?
-  expectedSolution String?
-  hint             String?
   isPublished      Boolean      @default(true)
+  startDate        DateTime?
   questionText     String?
   timeLimit        Int?
   course           Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
